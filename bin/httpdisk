@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+#
+# Main bin. Most of the interesting stuff is in HTTPDisk, for ease of testing.
+#
+
+$LOAD_PATH.unshift(File.join(__dir__, '../lib'))
+
+def puts_error(s, exit: false)
+  $stderr.puts "httpdisk: #{s}"
+end
+
+#
+# Load the bare minimum and parse args with slop. We do this separately for speed.
+#
+
+require 'httpdisk/cli_slop'
+begin
+  slop = HTTPDisk::CliSlop.slop(ARGV)
+rescue Slop::Error => e
+  puts_error(e) if e.message != ''
+  puts_error("try 'httpdisk --help' for more information")
+  exit 1
+end
+
+#
+# now load everything and run
+#
+
+require 'httpdisk'
+cli = HTTPDisk::Cli.new(slop)
+begin
+  cli.run
+rescue StandardError => e
+  puts_error(e) if !cli.options[:silent]
+  if ENV['HTTPDISK_DEBUG']
+    $stderr.puts
+    $stderr.puts e.backtrace.join("\n")
+  end
+  exit 1
+end
