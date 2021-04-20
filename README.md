@@ -4,7 +4,7 @@
 
 # httpdisk
 
-httpdisk is an aggressive disk cache on top of [Faraday](https://lostisland.github.io/faraday/). It's built for crawling and caches all requests, including POSTs and transient errors.
+httpdisk is an aggressive disk cache built on top of [Faraday](https://lostisland.github.io/faraday/). It's primarily used for crawling, and will aggressively cache all requests including POSTs and transient errors.
 
 ## Installation
 
@@ -45,7 +45,9 @@ $ httpdisk -A test-agent --proxy localhost:8080 --output tmp.html twitter.com
 
 ## Faraday & httpdisk
 
-[Faraday](https://lostisland.github.io/faraday/) is a popular Ruby HTTP client. Faraday uses a stack of middleware to process each request, similar to the way Rack works with Rails or Sinatra. httpdisk is Faraday middleware - it processes requests to look for cached responses. The simplest possible setup for httpdisk looks like this:
+[Faraday](https://lostisland.github.io/faraday/) is a popular Ruby HTTP client. Faraday uses a stack of middleware to process each request, similar to the way Rack works deep inside Rails or Sinatra. httpdisk is Faraday middleware - it processes requests to look for cached responses on disk.
+
+The simplest possible setup for httpdisk looks like this:
 
 ```ruby
 Faraday.default_connection = Faraday.new do
@@ -62,17 +64,17 @@ Faraday.default_connection = Faraday.new do
   _1.use :cookie_jar # cookie support
   _1.request :url_encoded # auto-encode form bodies
   _1.response :json # auto-decode JSON responses
-  _1.response :follow_redirects # follow redirects
+  _1.response :follow_redirects # follow redirects (should be above httpdisk)
   _1.use :httpdisk
   _1.request :retry # retry failed responses (should be below httpdisk)
 end
 Faraday.get(...)
 ```
 
-You may also want to experiment with the options for [:retry](https://lostisland.github.io/faraday/middleware/retry), to recover from a
-broader set of transient errors.
+You may want to experiment with the options for [:retry](https://lostisland.github.io/faraday/middleware/retry), to retry a
+broader set of transient errors. See [examples.rb](example.rb) for more ideas.
 
-##### Faraday Hints
+## Faraday Hints
 
 Faraday is powerful, but it can take time to master. The two primary methods look like this:
 
@@ -132,9 +134,9 @@ In general, if you make a request it will be cached regardless of the outcome.
 
 ## Configuration
 
-httpdisk itself supports a few options:
+httpdisk supports a few options:
 
-- `dir:` location for cache, defaults to `~/httpdisk`
+- `dir:` location for disk cache, defaults to `~/httpdisk`
 - `expires_in:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
@@ -143,7 +145,7 @@ Pass these in when setting up Faraday:
 
 ```ruby
 Faraday.default_connection = Faraday.new do
-  _1.use :httpdisk, expires_in: 7*24*60*60
+  _1.use :httpdisk, expires_in: 7*24*60*60, force: true
 end
 ```
 
@@ -175,12 +177,13 @@ Specific to httpdisk:
     --help            show this help
 ```
 
-## Limitations
+## Limitations & Gotchas
 
 - httpdisk does not work with parallel mode or `on_complete`.
 - Transient errors are cached. This is appropriate for many uses cases (like crawling) but can be confusing. Use `httpdisk --status` to debug.
-- There are no builtin mechanisms to cleanup or limit the size of the cache.
-- When using the `:retry` middleware, it should come below `httpdisk`. That way retries will complete before we cache.
+- There are no builtin mechanisms to cleanup or limit the size of the cache. Use `rm`
+- For best results the `:follow_redirects` middleware should be listed _above_ httpdisk. That way each redirect request will be cached.
+- For best results the `:retry` middleware should be listed _below_ httpdisk. That way retries will complete before we cache.
 
 ## Changelog
 
