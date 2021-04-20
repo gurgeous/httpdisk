@@ -72,7 +72,7 @@ Faraday.get(...)
 ```
 
 You may want to experiment with the options for [:retry](https://lostisland.github.io/faraday/middleware/retry), to retry a
-broader set of transient errors. See [examples.rb](example.rb) for more ideas.
+broader set of transient errors. See [examples.rb](https://github.com/gurgeous/httpdisk/blob/main/examples.rb) for more ideas.
 
 ## Faraday Hints
 
