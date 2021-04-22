@@ -11,17 +11,17 @@ class Examples
   #
 
   def simple
-    Faraday.default_connection = Faraday.new do
+    faraday = Faraday.new do
       _1.use :httpdisk, force: true
     end
 
-    Faraday.get('http://www.google.com', nil, { "User-Agent": 'test-agent' })
-    Faraday.get('http://www.google.com', { q: 'ruby' })
-    Faraday.post('http://httpbin.org/post', 'name=hello')
+    faraday.get('http://www.google.com', nil, { "User-Agent": 'test-agent' })
+    faraday.get('http://www.google.com', { q: 'ruby' })
+    faraday.post('http://httpbin.org/post', 'name=hello')
     exit
 
     3.times { puts }
-    response = Faraday.get('http://httpbingo.org/get')
+    response = faraday.get('http://httpbingo.org/get')
     puts response.env.url
     puts JSON.pretty_generate(JSON.parse(response.body))
   end
@@ -32,7 +32,7 @@ class Examples
   #
 
   def better
-    Faraday.default_connection = Faraday.new do
+    faraday = Faraday.new do
       # options
       _1.headers['User-Agent'] = 'HTTPDisk'
       _1.params.update(hello: 'world')
@@ -58,19 +58,19 @@ class Examples
 
     # get w/ params
     3.times { puts }
-    response = Faraday.get('http://httpbingo.org/get', { q: 'query' })
+    response = faraday.get('http://httpbingo.org/get', { q: 'query' })
     puts response.env.url
     puts JSON.pretty_generate(response.body)
 
     # post w/ encoded form body
     3.times { puts }
-    response = Faraday.post('http://httpbingo.org/post', 'a=1&b=2')
+    response = faraday.post('http://httpbingo.org/post', 'a=1&b=2')
     puts response.env.url
     puts JSON.pretty_generate(response.body)
 
     # post w/ auto-encoded form hash
     3.times { puts }
-    response = Faraday.post('http://httpbingo.org/post', { input: 'body' })
+    response = faraday.post('http://httpbingo.org/post', { input: 'body' })
     puts response.env.url
     puts JSON.pretty_generate(response.body)
   end
@@ -81,7 +81,7 @@ class Examples
   #
 
   def json
-    Faraday.default_connection = Faraday.new do
+    faraday = Faraday.new do
       # options
       _1.headers['User-Agent'] = 'HTTPDisk'
       _1.params.update(hello: 'world')
@@ -106,7 +106,7 @@ class Examples
     end
 
     3.times { puts }
-    response = Faraday.post('http://httpbingo.org/post', { this_is: [ 'json' ] })
+    response = faraday.post('http://httpbingo.org/post', { this_is: [ 'json' ] })
     puts response.env.url
     puts JSON.pretty_generate(response.body)
   end

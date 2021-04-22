@@ -36,11 +36,11 @@ module HTTPDisk
         return
       end
 
-      # setup Faraday
-      setup_connection
+      # create Faraday client
+      faraday = create_faraday
 
       # run request
-      response = Faraday.run_request(request_method, request_url, request_body, request_headers)
+      response = faraday.run_request(request_method, request_url, request_body, request_headers)
       if response.status >= 400
         raise CliError, "the requested URL returned error: #{response.status} #{response.reason_phrase}"
       end
@@ -53,8 +53,8 @@ module HTTPDisk
       end
     end
 
-    def setup_connection
-      Faraday.default_connection = Faraday.new do
+    def create_faraday
+      Faraday.new do
         # connection settings
         _1.proxy = proxy if options[:proxy]
         _1.options.timeout = options[:max_time] if options[:max_time]

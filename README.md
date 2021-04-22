@@ -21,13 +21,13 @@ gem 'httpdisk'
 ```ruby
 require 'httpdisk'
 
-# add httpdisk to Faraday
-Faraday.default_connection = Faraday.new do
+# create a new Faraday client
+faraday = Faraday.new do
   _1.use :httpdisk
 end
 
-response = Faraday.get('https://google.com') # read from network
-response = Faraday.get('https://google.com') # read from ~/httpdisk/google.com/...
+response = faraday.get('https://google.com') # read from network
+response = faraday.get('https://google.com') # read from ~/httpdisk/google.com/...
 ```
 
 httpdisk includes a handy command that works like `curl`:
@@ -50,16 +50,16 @@ $ httpdisk -A test-agent --proxy localhost:8080 --output tmp.html twitter.com
 The simplest possible setup for httpdisk looks like this:
 
 ```ruby
-Faraday.default_connection = Faraday.new do
+faraday = Faraday.new do
   _1.use :httpdisk
 end
-Faraday.get(...)
+faraday.get(...)
 ```
 
 For serious crawling, you probably want a more robust middleware stack:
 
 ```ruby
-Faraday.default_connection = Faraday.new do
+faraday = Faraday.new do
   _1.options.timeout = 10 # lower the timeout
   _1.use :cookie_jar # cookie support
   _1.request :url_encoded # auto-encode form bodies
@@ -68,7 +68,7 @@ Faraday.default_connection = Faraday.new do
   _1.use :httpdisk
   _1.request :retry # retry failed responses (should be below httpdisk)
 end
-Faraday.get(...)
+faraday.get(...)
 ```
 
 You may want to experiment with the options for [:retry](https://lostisland.github.io/faraday/middleware/retry), to retry a
@@ -76,16 +76,16 @@ broader set of transient errors. See [examples.rb](https://github.com/gurgeous/h
 
 ## Faraday Hints
 
-Faraday is powerful, but it can take time to master. The two primary methods look like this:
+Faraday is powerful, but it can take time to master. Use `Faraday.new` to create and configure a new instance. This is a great way to setup things that should be used on every request, like default parameters, default headers, timeouts, a proxy, etc.
+
+The two primary methods look like this:
 
 ```ruby
-response = Faraday.get(url, params, headers)
-response = Faraday.post(url, body, headers)
+response = faraday.get(url, params, headers)
+response = faraday.post(url, body, headers)
 ```
 
 By default, `body` must be a string. Add the `:json` or `:url_encoded` request middleware to auto encode a hash into the correct request body. Likewise, `response.body` is a string by default. Add the `:json` response middleware to auto decode the response body to JSON.
-
-`Faraday.default_connection` is a great way to setup things that should be used on every request, like default parameters, default headers, timeouts, a proxy, etc. Or you can instantiate a new connection with options and middleware. You will often see that pattern in the Faraday docs.
 
 ## Disk Cache
 
@@ -103,9 +103,9 @@ path: "httpdisk/google.com/0e3/7f96800a55958fa6029283c78f672"
 EVERY response will be cached on disk, including POSTs. By default, the cache will be placed at `~/httpdisk` and cached responses never expire. Some examples:
 
 ```ruby
-Faraday.get("http://www.google.com", nil, { "User-Agent": "test-agent" })
-Faraday.get("http://www.google.com", { "q": "ruby" })
-Faraday.post("http://httpbin.org/post", "name=hello")
+faraday.get("http://www.google.com", nil, { "User-Agent": "test-agent" })
+faraday.get("http://www.google.com", { "q": "ruby" })
+faraday.post("http://httpbin.org/post", "name=hello")
 ```
 
 This will populate the cache:
@@ -144,7 +144,7 @@ httpdisk supports a few options:
 Pass these in when setting up Faraday:
 
 ```ruby
-Faraday.default_connection = Faraday.new do
+faraday = Faraday.new do
   _1.use :httpdisk, expires_in: 7*24*60*60, force: true
 end
 ```

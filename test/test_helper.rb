@@ -12,7 +12,6 @@ class MiniTest::Test
   def teardown
     FileUtils.rm_rf(@tmpdir)
     WebMock.reset!
-    Faraday.default_connection = Faraday.new
   end
 
   protected
