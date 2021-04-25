@@ -45,7 +45,7 @@ $ httpdisk -A test-agent --proxy localhost:8080 --output tmp.html twitter.com
 
 ## Faraday & httpdisk
 
-[Faraday](https://lostisland.github.io/faraday/) is a popular Ruby HTTP client. Faraday uses a stack of middleware to process each request, similar to the way Rack works deep inside Rails or Sinatra. httpdisk is Faraday middleware - it processes requests to look for cached responses on disk.
+[Faraday](https://lostisland.github.io/faraday/) is a popular Ruby HTTP client. Faraday uses a stack of middleware to process each request, similar to the way Rack works deep inside Rails or Sinatra. httpdisk is Faraday middleware - it processes requests to look for cached responses on disk. Faraday's [usage page](https://lostisland.github.io/faraday/usage/) is a good place to learn more about Faraday.
 
 The simplest possible setup for httpdisk looks like this:
 
@@ -73,19 +73,6 @@ faraday.get(...)
 
 You may want to experiment with the options for [:retry](https://lostisland.github.io/faraday/middleware/retry), to retry a
 broader set of transient errors. See [examples.rb](https://github.com/gurgeous/httpdisk/blob/main/examples.rb) for more ideas.
-
-## Faraday Hints
-
-Faraday is powerful, but it can take time to master. Use `Faraday.new` to create and configure a new instance. This is a great way to setup things that should be used on every request, like default parameters, default headers, timeouts, a proxy, etc.
-
-The two primary methods look like this:
-
-```ruby
-response = faraday.get(url, params, headers)
-response = faraday.post(url, body, headers)
-```
-
-By default, `body` must be a string. Add the `:json` or `:url_encoded` request middleware to auto encode a hash into the correct request body. Likewise, `response.body` is a string by default. Add the `:json` response middleware to auto decode the response body to JSON.
 
 ## Disk Cache
 
@@ -179,11 +166,11 @@ Specific to httpdisk:
 
 ## Limitations & Gotchas
 
-- httpdisk does not work with parallel mode or `on_complete`.
 - Transient errors are cached. This is appropriate for many uses cases (like crawling) but can be confusing. Use `httpdisk --status` to debug.
 - There are no builtin mechanisms to cleanup or limit the size of the cache. Use `rm`
 - For best results the `:follow_redirects` middleware should be listed _above_ httpdisk. That way each redirect request will be cached.
 - For best results the `:retry` middleware should be listed _below_ httpdisk. That way retries will complete before we cache.
+- httpdisk does not work with Faraday's parallel mode or `on_complete`.
 
 ## Changelog
 
