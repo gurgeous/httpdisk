@@ -65,6 +65,7 @@ faraday = Faraday.new do
   _1.request :url_encoded # auto-encode form bodies
   _1.response :json # auto-decode JSON responses
   _1.response :follow_redirects # follow redirects (should be above httpdisk)
+  _1.response :encoding # set Ruby string encoding based on Content-Type (should be above httpdisk)
   _1.use :httpdisk
   _1.request :retry # retry failed responses (should be below httpdisk)
 end
@@ -174,6 +175,8 @@ Specific to httpdisk:
 
 ## Changelog
 
-#### 0.1 - April 2020
+#### 0.2 (unreleased)
+- added `response.env[:httpdisk]`, which will be true if the response came from the cache
 
+#### 0.1 - April 2020
 - Original release

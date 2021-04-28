@@ -22,11 +22,13 @@ module HTTPDisk
 
       # hit?
       if cached_response = read(cache_key, env)
+        cached_response.env[:httpdisk] = true
         return cached_response
       end
 
       # miss
       perform(cache_key, env).tap do |response|
+        response.env[:httpdisk] = false
         write(cache_key, env, response)
       end
     end

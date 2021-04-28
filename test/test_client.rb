@@ -11,6 +11,8 @@ class TestClient < MiniTest::Test
 
   def test_get
     r1, r2 = (1..2).map { @faraday.get 'http://httpbingo' }
+    assert !r1.env[:httpdisk]
+    assert r2.env[:httpdisk]
     assert_equal 200, r1.status
     assert_requested(:get, 'http://httpbingo', times: 1)
     assert_responses_equal r1, r2
