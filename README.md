@@ -128,6 +128,7 @@ httpdisk supports a few options:
 - `expires_in:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
+- `logger`: log requests to stderr, or pass your own logger
 
 Pass these in when setting up Faraday:
 
@@ -177,6 +178,7 @@ Specific to httpdisk:
 
 #### main - unreleased
 - added `response.env[:httpdisk]`, which will be true if the response came from the cache
+- `logger` option
 - rubocop
 
 #### 0.1 - April 2020

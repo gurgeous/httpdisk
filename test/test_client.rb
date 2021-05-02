@@ -52,13 +52,21 @@ class TestClient < MiniTest::Test
     end
   end
 
-  def test_force
+  def test_option_force
     faraday = Faraday.new do
       _1.use :httpdisk, dir: @tmpdir, force: true
     end
 
     2.times { faraday.get('http://httpbingo') }
     assert_requested(:get, 'http://httpbingo', times: 2)
+  end
+
+  def test_option_logger
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, logger: true
+    end
+
+    assert_output('', /miss.*hit/m) { 2.times { faraday.get('http://httpbingo') } }
   end
 
   protected

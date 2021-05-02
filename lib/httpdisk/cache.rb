@@ -40,7 +40,7 @@ module HTTPDisk
 
     # Cache status for a cache_key, %i[error force hit miss stale]
     def status(cache_key)
-      payload_or_status = read0(cache_key)
+      payload_or_status = read0(cache_key, peek: true)
       return payload_or_status if payload_or_status.is_a?(Symbol)
 
       payload_or_status.error_999? ? :error : :hit
@@ -61,14 +61,14 @@ module HTTPDisk
     protected
 
     # low level read, returns payload or status
-    def read0(cache_key)
+    def read0(cache_key, peek: false)
       path = diskpath(cache_key)
 
       return :miss if !File.exist?(path)
       return :stale if expired?(path)
       return :force if force?
 
-      payload = Zlib::GzipReader.open(path) { Payload.read(_1) }
+      payload = Zlib::GzipReader.open(path) { Payload.read(_1, peek: peek) }
       return :force if force_errors? && payload.error_999?
 
       payload

@@ -1,4 +1,5 @@
 require 'faraday'
+require 'logger'
 
 module HTTPDisk
   OPTIONS = {
@@ -6,21 +7,30 @@ module HTTPDisk
     expires_in: nil,
     force: false,
     force_errors: false,
+    logger: false,
   }.freeze
 
   # Middleware and main entry point.
   class Client < Faraday::Middleware
-    attr_reader :cache, :options
+    attr_reader :cache, :logger, :options
 
     def initialize(app, options = {})
       super(app, options = OPTIONS.merge(options.compact))
       @cache = Cache.new(options)
+
+      if options[:logger]
+        @logger = if options[:logger] == true
+          Logger.new($stderr)
+        else
+          options[:logger]
+        end
+      end
     end
 
     def call(env)
       cache_key = CacheKey.new(env)
+      logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
 
-      # hit?
       if cached_response = read(cache_key, env)
         cached_response.env[:httpdisk] = true
         return cached_response

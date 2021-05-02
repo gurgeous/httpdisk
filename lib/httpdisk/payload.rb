@@ -1,7 +1,7 @@
 module HTTPDisk
   class Payload
     class << self
-      def read(f)
+      def read(f, peek: false)
         Payload.new.tap do |p|
           # comment
           p.comment = f.gets[/^# (.*)/, 1]
@@ -16,8 +16,8 @@ module HTTPDisk
             p.headers[key] = value
           end
 
-          # body
-          p.body = f.read
+          # body (if not peeking)
+          p.body = f.read if !peek
         end
       end
 
