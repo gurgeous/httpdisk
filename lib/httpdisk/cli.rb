@@ -198,8 +198,7 @@ module HTTPDisk
       m = s.match(/^(\d+)([smhdwy])?$/)
       return if !m
 
-      num = m[1].to_i
-      unit = (m[2] || 's').to_sym
+      num, unit = m[1].to_i, (m[2] || 's').to_sym
       return if !UNITS.key?(unit)
 
       num * UNITS[unit]

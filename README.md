@@ -175,8 +175,9 @@ Specific to httpdisk:
 
 ## Changelog
 
-#### 0.2 (unreleased)
+#### main - unreleased
 - added `response.env[:httpdisk]`, which will be true if the response came from the cache
+- rubocop
 
 #### 0.1 - April 2020
 - Original release
