@@ -27,6 +27,14 @@ task :pry do
 end
 
 #
+# rubocop
+#
+
+task :rubocop do
+  system('bundle exec rubocop -A .', exception: true)
+end
+
+#
 # gem
 #
 

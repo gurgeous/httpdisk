@@ -27,7 +27,7 @@ module HTTPDisk
       end
 
       # miss
-      perform(cache_key, env).tap do |response|
+      perform(env).tap do |response|
         response.env[:httpdisk] = false
         write(cache_key, env, response)
       end
@@ -48,7 +48,7 @@ module HTTPDisk
     protected
 
     # perform the request, return Faraday::Response
-    def perform(cache_key, env)
+    def perform(env)
       app.call(env)
     rescue Faraday::ConnectionFailed, Faraday::SSLError, Faraday::TimeoutError => e
       # try to avoid caching proxy errors

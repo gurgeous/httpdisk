@@ -18,7 +18,6 @@ class Examples
     faraday.get('http://www.google.com', nil, { "User-Agent": 'test-agent' })
     faraday.get('http://www.google.com', { q: 'ruby' })
     faraday.post('http://httpbin.org/post', 'name=hello')
-    exit
 
     3.times { puts }
     response = faraday.get('http://httpbingo.org/get')
@@ -106,7 +105,7 @@ class Examples
     end
 
     3.times { puts }
-    response = faraday.post('http://httpbingo.org/post', { this_is: [ 'json' ] })
+    response = faraday.post('http://httpbingo.org/post', { this_is: ['json'] })
     puts response.env.url
     puts JSON.pretty_generate(response.body)
   end

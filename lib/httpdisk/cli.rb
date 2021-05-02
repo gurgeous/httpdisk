@@ -119,6 +119,7 @@ module HTTPDisk
       if !Faraday::Connection::METHODS.include?(method)
         raise CliError, "invalid --request #{method.inspect}"
       end
+
       method
     end
 
@@ -130,6 +131,7 @@ module HTTPDisk
         if url =~ %r{^\w+://}
           raise CliError, 'only http/https supported'
         end
+
         url = "http://#{url}"
       end
       URI.parse(url)
@@ -154,6 +156,7 @@ module HTTPDisk
           if !key || !value || key.empty? || value.empty?
             raise CliError, "invalid --header #{header.inspect}"
           end
+
           headers[key] = value
         end
       end
@@ -172,6 +175,7 @@ module HTTPDisk
           if !seconds
             raise CliError, "invalid --expires #{options[:expires].inspect}"
           end
+
           client_options[:expires_in] = seconds
         end
         client_options[:force] = options[:force]
@@ -185,6 +189,7 @@ module HTTPDisk
 
       proxy = parse_proxy(options[:proxy])
       raise CliError, "--proxy should be host[:port], not #{options[:proxy].inspect}" if !proxy
+
       proxy
     end
 
@@ -193,7 +198,8 @@ module HTTPDisk
       m = s.match(/^(\d+)([smhdwy])?$/)
       return if !m
 
-      num, unit = m[1].to_i, (m[2] || 's').to_sym
+      num = m[1].to_i
+      unit = (m[2] || 's').to_sym
       return if !UNITS.key?(unit)
 
       num * UNITS[unit]

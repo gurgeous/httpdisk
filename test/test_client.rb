@@ -37,12 +37,12 @@ class TestClient < MiniTest::Test
 
   # these are the most common errors
   def test_errors
-    [ Errno::ECONNREFUSED,
-      Errno::ECONNRESET,
-      Errno::EHOSTUNREACH,
-      OpenSSL::SSL::SSLError,
-      SocketError,
-      Timeout::Error, ].each do |error|
+    [Errno::ECONNREFUSED,
+     Errno::ECONNRESET,
+     Errno::EHOSTUNREACH,
+     OpenSSL::SSL::SSLError,
+     SocketError,
+     Timeout::Error,].each do |error|
       url = "http://raise_#{error.to_s.gsub(/:+/, '_').downcase}"
       stub_request(:any, url).to_raise(error)
       r1, r2 = (1..2).map { @faraday.get(url) }

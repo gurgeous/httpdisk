@@ -51,7 +51,7 @@ class TestCli < MiniTest::Test
   end
 
   def test_header
-    cli([ '--header', 'Gub: zub', 'silent' ]).run
+    cli(['--header', 'Gub: zub', 'silent']).run
     assert_requested :get, 'silent', headers: { 'Gub' => 'zub' }
   end
 
@@ -62,7 +62,7 @@ class TestCli < MiniTest::Test
 
   def test_include
     cli = cli('--include silent')
-    assert_output(%r{HTTPDISK 200}) { cli.run }
+    assert_output(/HTTPDISK 200/) { cli.run }
   end
 
   def test_max_time
@@ -82,7 +82,7 @@ class TestCli < MiniTest::Test
   def test_output
     tmp = "#{@tmpdir}/tmp"
     cli("--include --output #{tmp} silent").run
-    assert_match(%r{HTTPDISK 200}, IO.read(tmp))
+    assert_match(/HTTPDISK 200/, IO.read(tmp))
   end
 
   def test_proxy
@@ -102,7 +102,7 @@ class TestCli < MiniTest::Test
     assert_equal 'http://gub:123', parse.call('gub:123')
 
     # invalid
-    [ '', ':', 'a:', ':80', 'a:b', 'http://gub' ].each do
+    ['', ':', 'a:', ':80', 'a:b', 'http://gub'].each do
       assert_nil parse.call(_1)
     end
   end
@@ -112,7 +112,7 @@ class TestCli < MiniTest::Test
     assert_equal URI.parse('http://a.com'), HTTPDisk::Cli.new(url: 'a.com').request_url
 
     # zero or >1 urls result in an error
-    [ [], [ 'a.com', 'b.com' ] ].each do
+    [[], ['a.com', 'b.com']].each do
       assert_raises { HTTPDisk::Cli.slop(_1) }
     end
   end
@@ -147,7 +147,7 @@ class TestCli < MiniTest::Test
     end
 
     # invalid
-    [ '', '1z', 'gub' ].each do
+    ['', '1z', 'gub'].each do
       assert_nil parse.call(_1)
     end
   end
@@ -166,7 +166,7 @@ class TestCli < MiniTest::Test
 
   def cli(args)
     args = args.split if args.is_a?(String)
-    args += [ '--dir', @tmpdir ] if !args.include?('--dir')
+    args += ['--dir', @tmpdir] if !args.include?('--dir')
     HTTPDisk::Cli.new(HTTPDisk::CliSlop.slop(args))
   end
 end

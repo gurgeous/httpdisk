@@ -3,7 +3,7 @@ require_relative 'lib/httpdisk/version'
 Gem::Specification.new do |s|
   s.name = 'httpdisk'
   s.version = HTTPDisk::VERSION
-  s.authors = [ 'Adam Doppelt' ]
+  s.authors = ['Adam Doppelt']
   s.email = 'amd@gurge.com'
 
   s.summary = 'httpdisk - disk cache for faraday'
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   end
   s.bindir = 'bin'
   s.executables = s.files.grep(%r{^#{s.bindir}/}) { File.basename(_1) }
-  s.require_paths = [ 'lib' ]
+  s.require_paths = ['lib']
 
   # gem dependencies
   s.add_dependency 'faraday', '~> 1.4'

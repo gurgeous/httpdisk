@@ -6,7 +6,7 @@
 
 $LOAD_PATH.unshift(File.join(__dir__, '../lib'))
 
-def puts_error(s, exit: false)
+def puts_error(s)
   $stderr.puts "httpdisk: #{s}"
 end
 

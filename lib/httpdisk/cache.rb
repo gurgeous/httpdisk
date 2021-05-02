@@ -15,9 +15,10 @@ module HTTPDisk
       if expires_in && !expires_in.is_a?(Integer)
         raise ArgumentError, "expected :expires_in to be an integer, not #{expires_in.inspect}"
       end
+
       %i[force force_errors].each do
         value = send(_1)
-        if ![ nil, true, false ].include?(value)
+        if ![nil, true, false].include?(value)
           raise ArgumentError, "expected #{_1} to be a boolean, not #{value.inspect}"
         end
       end
@@ -41,6 +42,7 @@ module HTTPDisk
     def status(cache_key)
       payload_or_status = read0(cache_key)
       return payload_or_status if payload_or_status.is_a?(Symbol)
+
       payload_or_status.error_999? ? :error : :hit
     end
 

@@ -6,5 +6,6 @@ group :development, :test do
   gem 'mocha'
   gem 'pry'
   gem 'rake'
+  gem 'rubocop', '~> 1.13.0'
   gem 'webmock'
 end

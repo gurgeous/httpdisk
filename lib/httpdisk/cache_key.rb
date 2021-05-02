@@ -68,10 +68,9 @@ module HTTPDisk
     # Calculate cache key segment for body
     def bodykey
       body = env.request_body.to_s
-      case
-      when env.request_headers['Content-Type'] == 'application/x-www-form-urlencoded'
+      if env.request_headers['Content-Type'] == 'application/x-www-form-urlencoded'
         querykey(body)
-      when body.length < 50
+      elsif body.length < 50
         body
       else
         Digest::MD5.hexdigest(body)

@@ -7,8 +7,9 @@ module HTTPDisk
           p.comment = f.gets[/^# (.*)/, 1]
 
           # status line
-          m = f.gets.match(%r{^HTTPDISK (\d+) (.*)$})
-          p.status, p.reason_phrase = m[1].to_i, m[2]
+          m = f.gets.match(/^HTTPDISK (\d+) (.*)$/)
+          p.status = m[1].to_i
+          p.reason_phrase = m[2]
 
           # headers
           while (line = f.gets.chomp) && !line.empty?
