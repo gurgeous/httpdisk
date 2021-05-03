@@ -46,7 +46,7 @@ task install: :build do
   system("gem install --quiet httpdisk-#{spec.version}.gem", exception: true)
 end
 
-task release: :build do
+task release: %i[test build] do
   raise "looks like git isn't clean" unless `git status --porcelain`.empty?
 
   system("git tag -a #{spec.version} -m 'Tagging #{spec.version}'", exception: true)
