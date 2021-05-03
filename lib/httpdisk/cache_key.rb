@@ -4,10 +4,10 @@ require 'uri'
 
 module HTTPDisk
   class CacheKey
-    attr_reader :env
+    attr_reader :env, :ignore_params
 
-    def initialize(env)
-      @env = env
+    def initialize(env, ignore_params: [])
+      @env, @ignore_params = env, ignore_params
 
       # sanity checks
       raise 'http/https required' if env.url.scheme !~ /^https?$/
@@ -79,7 +79,15 @@ module HTTPDisk
 
     # Calculate canonical key for a query
     def querykey(q)
-      q.split('&').sort.join('&')
+      parts = q.split('&').sort
+      if !ignore_params.empty?
+        parts = parts.map do |part|
+          key, value = part.split('=', 2)
+          value = '[ignore]' if ignore_params.include?(key)
+          "#{key}=#{value}"
+        end
+      end
+      parts.join('&')
     end
 
     def default_port?

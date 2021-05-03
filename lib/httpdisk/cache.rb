@@ -7,21 +7,6 @@ module HTTPDisk
 
     def initialize(options)
       @options = options
-
-      # heavy sanity checking on arguments here
-      if !dir.is_a?(String)
-        raise ArgumentError, "expected :dir to be a string, not #{dir.inspect}"
-      end
-      if expires_in && !expires_in.is_a?(Integer)
-        raise ArgumentError, "expected :expires_in to be an integer, not #{expires_in.inspect}"
-      end
-
-      %i[force force_errors].each do
-        value = send(_1)
-        if ![nil, true, false].include?(value)
-          raise ArgumentError, "expected #{_1} to be a boolean, not #{value.inspect}"
-        end
-      end
     end
 
     %i[dir expires_in force force_errors].each do |method|

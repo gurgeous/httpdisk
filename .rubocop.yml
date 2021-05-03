@@ -6,6 +6,7 @@ AllCops:
 Layout/CaseIndentation: { Enabled: false }
 Layout/EndAlignment: { EnforcedStyleAlignWith: variable }
 Lint/AssignmentInCondition: { Enabled: false }
+Lint/NonLocalExitFromIterator: { Enabled: false }
 Metrics: { Enabled: false }
 Naming/MethodParameterName: { Enabled: false }
 Naming/VariableNumber: { Enabled: false }

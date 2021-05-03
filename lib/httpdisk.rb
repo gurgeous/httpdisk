@@ -5,6 +5,7 @@ require 'httpdisk/cli'
 require 'httpdisk/client'
 require 'httpdisk/error'
 require 'httpdisk/payload'
+require 'httpdisk/sanity'
 require 'httpdisk/version'
 
 module HTTPDisk
