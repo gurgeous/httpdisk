@@ -1,7 +1,9 @@
 require_relative 'test_helper'
 
-class TestSanity < MiniTest::Test
+class TestOptions < MiniTest::Test
   def test_invalid
+    skip
+
     # good
     [
       [{}, {}],

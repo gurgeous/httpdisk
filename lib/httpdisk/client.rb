@@ -2,33 +2,28 @@ require 'faraday'
 require 'logger'
 
 module HTTPDisk
-  DEFAULTS = {
-    dir: File.join(ENV['HOME'], 'httpdisk'),
-    expires_in: nil,
-    force: false,
-    force_errors: false,
-    ignore_params: [],
-    logger: false,
-  }.freeze
-
-  SCHEMA = {
-    dir: String,
-    expires_in: [nil, Integer],
-    force: :boolean,
-    force_errors: :boolean,
-    ignore_params: [Array],
-    logger: [:boolean, Logger],
-  }.freeze
-
   # Middleware and main entry point.
   class Client < Faraday::Middleware
-    attr_reader :cache, :options
+    attr_reader :cache, :ignore_params, :logger, :options
 
     def initialize(app, options = {})
-      super(app, options = DEFAULTS.merge(options.compact))
-      Sanity.new(options, SCHEMA).check!
+      options = Options.parse(options) do
+        _1.string :dir, default: File.join(ENV['HOME'], 'httpdisk')
+        _1.integer :expires_in
+        _1.boolean :force
+        _1.boolean :force_errors
+        _1.array :ignore_params, default: []
+        _1.custom :logger, valid: [:boolean, Logger]
+      end
 
+      super(app, options)
       @cache = Cache.new(options)
+
+      @ignore_params = options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
+      @logger = case options[:logger]
+      when true then Logger.new($stderr)
+      when Logger then options[:logger]
+      end
     end
 
     def call(env)
@@ -110,25 +105,6 @@ module HTTPDisk
       return if !err.is_a?(Faraday::ConnectionFailed)
 
       err.to_s =~ /#{proxy.host}.*#{proxy.port}/
-    end
-
-    #
-    # options
-    #
-
-    def ignore_params
-      @ignore_params ||= options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
-    end
-
-    def logger
-      return if !options[:logger]
-      return @logger if defined?(@logger)
-
-      @logger = case options[:logger]
-      when nil, false then nil
-      when true then Logger.new($stderr)
-      when Logger then options[:logger]
-      end
     end
   end
 end
