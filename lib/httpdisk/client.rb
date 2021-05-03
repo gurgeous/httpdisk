@@ -12,19 +12,11 @@ module HTTPDisk
 
   # Middleware and main entry point.
   class Client < Faraday::Middleware
-    attr_reader :cache, :logger, :options
+    attr_reader :cache, :options
 
     def initialize(app, options = {})
       super(app, options = OPTIONS.merge(options.compact))
       @cache = Cache.new(options)
-
-      if options[:logger]
-        @logger = if options[:logger] == true
-          Logger.new($stderr)
-        else
-          options[:logger]
-        end
-      end
     end
 
     def call(env)
@@ -106,6 +98,15 @@ module HTTPDisk
       return if !err.is_a?(Faraday::ConnectionFailed)
 
       err.to_s =~ /#{proxy.host}.*#{proxy.port}/
+    end
+
+    def logger
+      return @logger if defined?(@logger)
+
+      @logger = case options[:logger]
+      when true then Logger.new($stderr)
+      when Logger then options[:logger]
+      end
     end
   end
 end

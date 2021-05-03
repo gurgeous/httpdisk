@@ -3,6 +3,7 @@ AllCops:
   SuggestExtensions: false
 
 # minimal personal preference
+Layout/CaseIndentation: { Enabled: false }
 Layout/EndAlignment: { EnforcedStyleAlignWith: variable }
 Lint/AssignmentInCondition: { Enabled: false }
 Metrics: { Enabled: false }

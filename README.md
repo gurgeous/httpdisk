@@ -176,10 +176,10 @@ Specific to httpdisk:
 
 ## Changelog
 
-#### main - unreleased
+#### 0.2 - May 2020
 - added `response.env[:httpdisk]`, which will be true if the response came from the cache
-- `logger` option
-- rubocop
+- `:logger` option
+- rake rubocop
 
 #### 0.1 - April 2020
 - Original release
