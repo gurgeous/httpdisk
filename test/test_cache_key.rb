@@ -39,7 +39,7 @@ class TestCacheKey < MiniTest::Test
     assert_equal 'a=2&b=1&c=3', ck.send(:bodykey)
     # w/ ignore_params
     ck = ck('http://gub', body: body, request_headers: request_headers, ignore_params: %w[b])
-    assert_equal 'a=2&b=[ignore]&c=3', ck.send(:bodykey)
+    assert_equal 'a=2&c=3', ck.send(:bodykey)
 
     # short string
     ck = ck('http://gub', body: 'hello')
@@ -68,7 +68,12 @@ class TestCacheKey < MiniTest::Test
   end
 
   def test_ignore_params
-    ck = ck('http://example.com?b=2&a=1&c=3', ignore_params: %w[b])
-    assert_equal 'GET http://example.com?a=1&b=[ignore]&c=3', ck.key
+    %w[
+      http://example.com?b=2&a=1&c=3
+      http://example.com?a=1&c=3
+      http://example.com?a=1&c=3&b=hi
+    ].each do
+      assert_equal 'GET http://example.com?a=1&c=3', ck(_1, ignore_params: %w[b]).key
+    end
   end
 end

@@ -62,7 +62,7 @@ class TestOptions < MiniTest::Test
       _1.boolean :x
     end
     assert_nil options.parse({})[:x]
-    assert_equal false, options.parse({x:false})[:x]
+    assert_equal false, options.parse({ x: false })[:x]
     assert_equal true, options.parse({ x: true })[:x]
     assert_equal true, options.parse({ x: 456 })[:x]
   end

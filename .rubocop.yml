@@ -14,6 +14,7 @@ Metrics: { Enabled: false }
 Naming/MethodParameterName: { Enabled: false }
 Naming/VariableNumber: { Enabled: false }
 Style/Documentation: { Enabled: false }
+Style/DoubleNegation: { Enabled: false }
 Style/FrozenStringLiteralComment: { Enabled: false }
 Style/IfUnlessModifier: { Enabled: false }
 Style/NegatedIf: { Enabled: false }

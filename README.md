@@ -128,6 +128,7 @@ httpdisk supports a few options:
 - `expires_in:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
+- `ignore_params:` array of query params to ignore when calculating cache_key
 - `logger`: log requests to stderr, or pass your own logger
 
 Pass these in when setting up Faraday:

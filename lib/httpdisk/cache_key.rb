@@ -83,9 +83,10 @@ module HTTPDisk
       if !ignore_params.empty?
         parts = parts.map do |part|
           key, value = part.split('=', 2)
-          value = '[ignore]' if ignore_params.include?(key)
+          next if ignore_params.include?(key)
+
           "#{key}=#{value}"
-        end
+        end.compact
       end
       parts.join('&')
     end
