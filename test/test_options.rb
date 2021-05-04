@@ -23,6 +23,7 @@ class TestOptions < MiniTest::Test
       { bool: true },
       { boolean: false },
       { boolean: true },
+      { boolean: 'anything' },
       { float: 1.23 },
       { float: 456 },
       { hash: { a: 1 } },
@@ -36,8 +37,6 @@ class TestOptions < MiniTest::Test
     # invalid
     [
       { array: 'str' },
-      { bool: 'str' },
-      { boolean: 'str' },
       { float: 'str' },
       { hash: 'str' },
       { integer: 'str' },
@@ -50,12 +49,22 @@ class TestOptions < MiniTest::Test
 
   def test_on
     options = HTTPDisk::Options.new do
-      _1.on :x, type: [:boolean, :integer, Logger]
+      _1.on :x, type: [:integer, Logger]
     end
-    [true, 123, Logger.new(nil)].each do
+    [123, Logger.new(nil)].each do
       options.parse(x: _1)
     end
     assert_raises(ArgumentError) { options.parse(x: 'str') }
+  end
+
+  def test_boolean
+    options = HTTPDisk::Options.new do
+      _1.boolean :x
+    end
+    assert_nil options.parse({})[:x]
+    assert_equal false, options.parse({x:false})[:x]
+    assert_equal true, options.parse({ x: true })[:x]
+    assert_equal true, options.parse({ x: 456 })[:x]
   end
 
   def test_defaults

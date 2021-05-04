@@ -45,8 +45,8 @@ module HTTPDisk
       # defaults
       options = defaults.merge(options.compact)
 
-      # check
       flags.each do |flag, foptions|
+        # nil check
         value = options[flag]
         if value.nil?
           raise ArgumentError, ":#{flag} is required" if foptions[:required]
@@ -54,6 +54,12 @@ module HTTPDisk
           next
         end
 
+        # type cast (for boolean)
+        if foptions[:type] == :boolean
+          value = options[flag] = !!options[flag]
+        end
+
+        # type check
         types = Array(foptions[:type])
         raise ArgumentError, error_message(flag, value, types) if !valid?(value, types)
       end
@@ -73,7 +79,7 @@ module HTTPDisk
       types.any? do
         case _1
         when :array then true if value.is_a?(Array)
-        when :boolean then true if [true, false].include?(value)
+        when :boolean then true # in Ruby everything is a boolean
         when :float then true if value.is_a?(Float) || value.is_a?(Integer)
         when :hash then true if value.is_a?(Hash)
         when :integer then true if value.is_a?(Integer)
