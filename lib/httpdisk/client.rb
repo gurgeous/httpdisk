@@ -4,7 +4,7 @@ require 'logger'
 module HTTPDisk
   # Middleware and main entry point.
   class Client < Faraday::Middleware
-    attr_reader :cache, :ignore_params, :logger, :options
+    attr_reader :cache, :options
 
     def initialize(app, options = {})
       options = Options.parse(options) do
@@ -13,17 +13,11 @@ module HTTPDisk
         _1.boolean :force
         _1.boolean :force_errors
         _1.array :ignore_params, default: []
-        _1.custom :logger, valid: [:boolean, Logger]
+        _1.on :logger, type: [:boolean, Logger]
       end
 
       super(app, options)
       @cache = Cache.new(options)
-
-      @ignore_params = options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
-      @logger = case options[:logger]
-      when true then Logger.new($stderr)
-      when Logger then options[:logger]
-      end
     end
 
     def call(env)
@@ -105,6 +99,23 @@ module HTTPDisk
       return if !err.is_a?(Faraday::ConnectionFailed)
 
       err.to_s =~ /#{proxy.host}.*#{proxy.port}/
+    end
+
+    #
+    # options
+    #
+
+    def ignore_params
+      @ignore_params ||= options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
+    end
+
+    def logger
+      return if !options[:logger]
+
+      @logger ||= case options[:logger]
+      when true then Logger.new($stderr)
+      when Logger then options[:logger]
+      end
     end
   end
 end
