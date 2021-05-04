@@ -18,14 +18,14 @@ module MiniTest
     protected
 
     # helper for creating a cache_key
-    def ck(url, method: 'get', request_headers: {}, body: nil)
+    def ck(url, method: 'get', request_headers: {}, body: nil, ignore_params: [])
       env = Faraday::Env.new.tap do
         _1.body = body
         _1.request_headers = request_headers
         _1.method = method
         _1.url = URI.parse(url)
       end
-      HTTPDisk::CacheKey.new(env)
+      HTTPDisk::CacheKey.new(env, ignore_params: ignore_params)
     end
 
     #

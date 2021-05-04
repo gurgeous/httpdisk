@@ -2,25 +2,26 @@ require 'faraday'
 require 'logger'
 
 module HTTPDisk
-  OPTIONS = {
-    dir: File.join(ENV['HOME'], 'httpdisk'),
-    expires_in: nil,
-    force: false,
-    force_errors: false,
-    logger: false,
-  }.freeze
-
   # Middleware and main entry point.
   class Client < Faraday::Middleware
     attr_reader :cache, :options
 
     def initialize(app, options = {})
-      super(app, options = OPTIONS.merge(options.compact))
+      options = Options.parse(options) do
+        _1.string :dir, default: File.join(ENV['HOME'], 'httpdisk')
+        _1.integer :expires_in
+        _1.boolean :force
+        _1.boolean :force_errors
+        _1.array :ignore_params, default: []
+        _1.on :logger, type: [:boolean, Logger]
+      end
+
+      super(app, options)
       @cache = Cache.new(options)
     end
 
     def call(env)
-      cache_key = CacheKey.new(env)
+      cache_key = CacheKey.new(env, ignore_params: ignore_params)
       logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
 
       if cached_response = read(cache_key, env)
@@ -100,10 +101,18 @@ module HTTPDisk
       err.to_s =~ /#{proxy.host}.*#{proxy.port}/
     end
 
-    def logger
-      return @logger if defined?(@logger)
+    #
+    # options
+    #
 
-      @logger = case options[:logger]
+    def ignore_params
+      @ignore_params ||= options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
+    end
+
+    def logger
+      return if !options[:logger]
+
+      @logger ||= case options[:logger]
       when true then Logger.new($stderr)
       when Logger then options[:logger]
       end

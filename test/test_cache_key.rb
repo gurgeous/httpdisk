@@ -37,6 +37,9 @@ class TestCacheKey < MiniTest::Test
     body = URI.encode_www_form({ b: 1, a: 2, c: 3 })
     ck = ck('http://gub', body: body, request_headers: request_headers)
     assert_equal 'a=2&b=1&c=3', ck.send(:bodykey)
+    # w/ ignore_params
+    ck = ck('http://gub', body: body, request_headers: request_headers, ignore_params: %w[b])
+    assert_equal 'a=2&b=[ignore]&c=3', ck.send(:bodykey)
 
     # short string
     ck = ck('http://gub', body: 'hello')
@@ -62,5 +65,10 @@ class TestCacheKey < MiniTest::Test
     ck = ck('http://www.google.com')
     assert_match 'google.com', ck.diskpath
     assert_match ck.digest, ck.diskpath.gsub('/', '')
+  end
+
+  def test_ignore_params
+    ck = ck('http://example.com?b=2&a=1&c=3', ignore_params: %w[b])
+    assert_equal 'GET http://example.com?a=1&b=[ignore]&c=3', ck.key
   end
 end

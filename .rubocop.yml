@@ -2,10 +2,14 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
 
+# this is buggy in 2.7.0
+Style/HashTransformValues: { Enabled: false }
+
 # minimal personal preference
 Layout/CaseIndentation: { Enabled: false }
 Layout/EndAlignment: { EnforcedStyleAlignWith: variable }
 Lint/AssignmentInCondition: { Enabled: false }
+Lint/NonLocalExitFromIterator: { Enabled: false }
 Metrics: { Enabled: false }
 Naming/MethodParameterName: { Enabled: false }
 Naming/VariableNumber: { Enabled: false }
