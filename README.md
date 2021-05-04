@@ -176,9 +176,12 @@ Specific to httpdisk:
 
 ## Changelog
 
+#### 0.3 (unreleased)
+- added :ignore_params, for ignoring query params when generating cache keys
+
 #### 0.2 - May 2020
 - added `response.env[:httpdisk]`, which will be true if the response came from the cache
-- `:logger` option
+- added `:logger` option
 - rake rubocop
 
 #### 0.1 - April 2020
