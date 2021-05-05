@@ -7,7 +7,7 @@ module HTTPDisk
     attr_reader :cache, :options
 
     def initialize(app, options = {})
-      options = Options.parse(options) do
+      options = Sloptions.parse(options) do
         _1.string :dir, default: File.join(ENV['HOME'], 'httpdisk')
         _1.integer :expires_in
         _1.boolean :force

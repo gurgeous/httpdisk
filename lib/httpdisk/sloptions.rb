@@ -2,17 +2,17 @@ module HTTPDisk
   # Like Slop, but for sanity checking method options. Useful for library entry
   # points that want to be strict. Example usage:
   #
-  # options = Options.new(options) do
+  # options = Sloptions.new(options) do
   #   _1.boolean :force
   #   _1.integer :retries, required: true
   #   _1.string :hello, default: 'world'
   #   ...
   # end
-  class Options
+  class Sloptions
     attr_reader :flags
 
     def self.parse(options, &block)
-      Options.new(&block).parse(options)
+      Sloptions.new(&block).parse(options)
     end
 
     def initialize
