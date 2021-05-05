@@ -13,9 +13,10 @@ spec = Gem::Specification.load('httpdisk.gemspec')
 Rake::TestTask.new { _1.libs << 'test' }
 task default: :test
 
-# Watch files, run tests whenever something changes
+# Watch rb files, run tests whenever something changes
 task :watch do
-  system('find . | entr -c rake test')
+  # https://superuser.com/a/665208 / https://unix.stackexchange.com/a/42288
+  system("while true; do find . -name '*.rb' | entr -c -d rake; test $? -gt 128 && break; done")
 end
 
 #
