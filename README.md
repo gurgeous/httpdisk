@@ -178,12 +178,16 @@ Specific to httpdisk:
 ## Changelog
 
 #### 0.3 (unreleased)
+
 - added :ignore_params, for ignoring query params when generating cache keys
+- HTTP 50x responses return :error status (and respond to `force_error`)
 
 #### 0.2 - May 2020
+
 - added `response.env[:httpdisk]`, which will be true if the response came from the cache
 - added `:logger` option
 - rake rubocop
 
 #### 0.1 - April 2020
+
 - Original release

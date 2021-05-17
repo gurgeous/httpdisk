@@ -52,7 +52,7 @@ class TestCache < MiniTest::Test
         results << @cache.status(ck)
 
         # fresh error
-        @cache.write(ck, create_payload(status: 999))
+        @cache.write(ck, create_payload(status: 500))
         results << @cache.status(ck)
 
         # stale error

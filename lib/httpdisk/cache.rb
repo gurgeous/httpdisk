@@ -28,7 +28,7 @@ module HTTPDisk
       payload_or_status = read0(cache_key, peek: true)
       return payload_or_status if payload_or_status.is_a?(Symbol)
 
-      payload_or_status.error_999? ? :error : :hit
+      payload_or_status.error? ? :error : :hit
     end
 
     # Write response to the disk cache
@@ -54,7 +54,7 @@ module HTTPDisk
       return :force if force?
 
       payload = Zlib::GzipReader.open(path) { Payload.read(_1, peek: peek) }
-      return :force if force_errors? && payload.error_999?
+      return :force if force_errors? && payload.error?
 
       payload
     end

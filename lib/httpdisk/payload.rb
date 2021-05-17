@@ -39,8 +39,8 @@ module HTTPDisk
       @headers = Faraday::Utils::Headers.new
     end
 
-    def error_999?
-      status == HTTPDisk::ERROR_STATUS
+    def error?
+      status >= 500
     end
 
     def write(f)
