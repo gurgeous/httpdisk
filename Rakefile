@@ -32,7 +32,7 @@ end
 #
 
 task :rubocop do
-  system('bundle exec rubocop -A .', exception: true)
+  sh 'bundle exec rubocop -A .'
 end
 
 #
@@ -40,17 +40,17 @@ end
 #
 
 task :build do
-  system('gem build --quiet httpdisk.gemspec', exception: true)
+  sh 'gem build --quiet httpdisk.gemspec'
 end
 
 task install: :build do
-  system("gem install --quiet httpdisk-#{spec.version}.gem", exception: true)
+  sh "gem install --quiet httpdisk-#{spec.version}.gem"
 end
 
 task release: %i[rubocop test build] do
   raise "looks like git isn't clean" unless `git status --porcelain`.empty?
 
-  system("git tag -a #{spec.version} -m 'Tagging #{spec.version}'", exception: true)
-  system('git push --tags', exception: true)
-  system("gem push httpdisk-#{spec.version}.gem", exception: true)
+  sh "git tag -a #{spec.version} -m 'Tagging #{spec.version}'"
+  sh 'git push --tags'
+  sh "gem push httpdisk-#{spec.version}.gem"
 end

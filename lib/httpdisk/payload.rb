@@ -40,7 +40,7 @@ module HTTPDisk
     end
 
     def error?
-      status >= 500
+      status >= 400
     end
 
     def write(f)

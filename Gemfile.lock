@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    httpdisk (0.2.0)
+    httpdisk (0.3.0)
       faraday (~> 1.4)
       faraday-cookie_jar (~> 0.0)
       faraday_middleware (~> 1.0)
@@ -63,7 +63,7 @@ GEM
       parser (>= 3.0.1.1)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.4)
-    slop (4.8.2)
+    slop (4.9.0)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.7)

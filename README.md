@@ -180,7 +180,7 @@ Specific to httpdisk:
 #### 0.3 (unreleased)
 
 - added :ignore_params, for ignoring query params when generating cache keys
-- HTTP 50x responses return :error status (and respond to `force_error`)
+- HTTP 40x & 50x responses return :error status (and respond to `force_error`)
 
 #### 0.2 - May 2020
 
