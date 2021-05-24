@@ -19,7 +19,9 @@ module HTTPDisk
     #
 
     def print_start(path, payload, all_matches); end
+
     def print_line(path, payload, matches); end
+
     def print_end(path, payload, all_matches); end
 
     #
