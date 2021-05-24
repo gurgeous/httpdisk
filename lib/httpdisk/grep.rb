@@ -10,11 +10,10 @@ require 'slop'
 
 module HTTPDisk
   class Grep
-    attr_reader :options, :output, :total_matches, :tty
+    attr_reader :options, :total_matches, :tty
 
     def initialize(options)
       @options = options
-      @output = $stdout
       @total_matches = 0
     end
 
@@ -46,7 +45,8 @@ module HTTPDisk
       end.reject(&:empty?)
       return if all_matches.empty?
 
-      # now print
+      # print
+      @total_matches += 1
       printer.print(path, payload, all_matches)
     end
 
@@ -86,8 +86,8 @@ module HTTPDisk
     def self.slop(args)
       slop = Slop.parse(args) do |o|
         o.banner = 'httpdisk-grep [options] pattern [path ...]'
-        o.boolean '-c', '--count', 'suppresses normal output and shows the number of matching lines'
-        o.boolean '-h', '--head', 'show headers before each match'
+        o.boolean '-c', '--count', 'suppress normal output and show count'
+        o.boolean '-h', '--head', 'show req headers before each match'
         o.boolean '--version', 'show version' do
           puts "httpdisk-grep #{HTTPDisk::VERSION}"
           exit

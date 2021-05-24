@@ -7,22 +7,10 @@ module HTTPDisk
     end
 
     def print(path, payload, all_matches)
-      print_start(path, payload, all_matches)
-      all_matches.each { print_line(path, payload, _1) }
-      print_end(path, payload, all_matches)
+      raise NotImplementedError
     end
 
     protected
-
-    #
-    # override these
-    #
-
-    def print_start(path, payload, all_matches); end
-
-    def print_line(path, payload, matches); end
-
-    def print_end(path, payload, all_matches); end
 
     #
     # helpers
@@ -53,44 +41,47 @@ module HTTPDisk
   # subclasses
   #
 
-  # prints path:count
+  # path:count
   class CountPrinter < GrepPrinter
-    def print_end(path, _payload, all_matches)
+    def print(path, _payload, all_matches)
       output.puts "#{path}:#{all_matches.length}"
     end
   end
 
-  # prints a header, then each match
+  # header, then matches
   class HeaderPrinter < GrepPrinter
     attr_reader :head, :printed
 
     def initialize(output, head)
       super(output)
-      @head, @printed = head, 0
+      @head = head
+      @printed = 0
     end
 
-    def print_start(path, payload, _all_matches)
+    def print(path, payload, all_matches)
       # separator & filename
       output.puts if (@printed += 1) > 1
       output.puts path
-      return if !head
 
-      # head
-      io = StringIO.new
-      payload.write_header(io)
-      io.string.lines.each { output.puts "< #{_1}" }
-    end
+      # --head
+      if head
+        io = StringIO.new
+        payload.write_header(io)
+        io.string.lines.each { output.puts "< #{_1}" }
+      end
 
-    def print_line(_path, _payload, matches)
-      print_matches(matches)
+      # matches
+      all_matches.each { print_matches(_1) }
     end
   end
 
-  # prints each match as path:match
+  # path:match
   class TersePrinter < GrepPrinter
-    def print_line(path, _payload, matches)
-      output.write("#{path}:")
-      print_matches(matches)
+    def print(path, _payload, all_matches)
+      all_matches.each do
+        output.write("#{path}:")
+        print_matches(_1)
+      end
     end
   end
 end
