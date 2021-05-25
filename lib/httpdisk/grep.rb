@@ -103,12 +103,12 @@ module HTTPDisk
     # printer for output
     def printer
       @printer ||= case
+      when options[:quiet]
+        QuietPrinter.new
       when options[:count]
         CountPrinter.new($stdout)
       when options[:head] || $stdout.tty?
         HeaderPrinter.new($stdout, options[:head])
-      when options[:quiet]
-        QuietPrinter.new
       else
         TersePrinter.new($stdout)
       end
