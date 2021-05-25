@@ -1,23 +1,23 @@
 module HTTPDisk
   class GrepPrinter
+    GREP_COLOR = '37;45'.freeze
+
     attr_reader :output
 
     def initialize(output)
       @output = output
     end
 
-    def print(path, payload, all_matches)
-      raise NotImplementedError
-    end
+    def print(path, payload, all_matches); end
 
     protected
 
     #
-    # helpers
+    # helpers for subclasses
     #
 
     def grep_color
-      @grep_color ||= (ENV['GREP_COLOR'] || '37;45')
+      @grep_color ||= (ENV['GREP_COLOR'] || GREP_COLOR)
     end
 
     def print_matches(matches)
@@ -27,7 +27,11 @@ module HTTPDisk
           ii = 0
           matches.each do
             result << s[ii..._1.begin(0)]
-            result << "\e[#{grep_color}m#{_1[0]}\e[0m"
+            result << "\e["
+            result << grep_color
+            result << 'm'
+            result << _1[0]
+            result << "\e[0m"
             ii = _1.end(0)
           end
           result << s[ii..]
@@ -48,7 +52,7 @@ module HTTPDisk
     end
   end
 
-  # header, then matches
+  # header, then each match
   class HeaderPrinter < GrepPrinter
     attr_reader :head, :printed
 
@@ -75,7 +79,13 @@ module HTTPDisk
     end
   end
 
-  # path:match
+  class QuietPrinter < GrepPrinter
+    def initialize
+      super(nil)
+    end
+  end
+
+  # each match as path:match
   class TersePrinter < GrepPrinter
     def print(path, _payload, all_matches)
       all_matches.each do

@@ -1,3 +1,4 @@
+require 'English'
 require 'httpdisk'
 require 'minitest/autorun'
 require 'mocha/minitest'
@@ -26,6 +27,17 @@ module MiniTest
         _1.url = URI.parse(url)
       end
       HTTPDisk::CacheKey.new(env, ignore_params: ignore_params)
+    end
+
+    # helper for creating a payload
+    def payload(body: nil, comment: nil, reason_phrase: nil, status: nil, headers: {})
+      HTTPDisk::Payload.new.tap do
+        _1.body = body || 'somebody'
+        _1.comment = comment || 'hi there'
+        _1.headers.update(headers)
+        _1.reason_phrase = reason_phrase || 'OK'
+        _1.status = status || 200
+      end
     end
 
     #

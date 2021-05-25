@@ -1,5 +1,4 @@
 require_relative 'test_helper'
-require 'English'
 
 class TestCli < MiniTest::Test
   def setup

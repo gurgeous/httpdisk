@@ -2,6 +2,8 @@
 require 'httpdisk/grep_printer'
 require 'httpdisk/payload'
 require 'httpdisk/version'
+require 'find'
+require 'json'
 require 'slop'
 
 #
@@ -10,32 +12,33 @@ require 'slop'
 
 module HTTPDisk
   class Grep
-    attr_reader :options, :total_matches, :tty
+    attr_reader :options, :success, :tty
 
     def initialize(options)
       @options = options
-      @total_matches = 0
     end
 
-    # enumerate file paths one at a time
+    # Enumerate file paths one at a time. Returns true if matches were found.
     def run
       paths.each do
         begin
           run_one(_1)
         rescue StandardError => e
+          if ENV['HTTPDISK_DEBUG']
+            $stderr.puts
+            $stderr.puts e.class
+            $stderr.puts e.backtrace.join("\n")
+          end
           raise GrepError, "#{e.message[0, 70]} (#{_1})"
         end
       end
-      exit 1 if total_matches == 0
+      success
     end
 
     def run_one(path)
-      # read payload and prettyprint json if necessary
+      # read payload & body
       payload = Zlib::GzipReader.open(path) { Payload.read(_1) }
-      body = payload.body
-      if payload.headers['Content-Type'] =~ /\bjson\b/
-        body = JSON.pretty_generate(JSON.parse(body))
-      end
+      body = prepare_body(payload)
 
       # collect all_matches
       all_matches = body.each_line.map do |line|
@@ -46,7 +49,7 @@ module HTTPDisk
       return if all_matches.empty?
 
       # print
-      @total_matches += 1
+      @success = true
       printer.print(path, payload, all_matches)
     end
 
@@ -65,6 +68,33 @@ module HTTPDisk
       paths
     end
 
+    # convert raw body into something palatable for pattern matching
+    def prepare_body(payload)
+      body = payload.body
+
+      if content_type = payload.headers['Content-Type']
+        # Mismatches between Content-Type and body.encoding are fatal, so make
+        # an effort to align them.
+        if charset = content_type[/charset=([^;]+)/, 1]
+          encoding = begin
+            Encoding.find(charset)
+          rescue StandardError
+            nil
+          end
+          if encoding && body.encoding != encoding
+            body.force_encoding(encoding)
+          end
+        end
+
+        # pretty print json for easier searching
+        if content_type =~ /\bjson\b/
+          body = JSON.pretty_generate(JSON.parse(body))
+        end
+      end
+
+      body
+    end
+
     # regex pattern from options
     def pattern
       @pattern ||= Regexp.new(options[:pattern], Regexp::IGNORECASE)
@@ -77,6 +107,8 @@ module HTTPDisk
         CountPrinter.new($stdout)
       when options[:head] || $stdout.tty?
         HeaderPrinter.new($stdout, options[:head])
+      when options[:quiet]
+        QuietPrinter.new
       else
         TersePrinter.new($stdout)
       end
@@ -88,6 +120,7 @@ module HTTPDisk
         o.banner = 'httpdisk-grep [options] pattern [path ...]'
         o.boolean '-c', '--count', 'suppress normal output and show count'
         o.boolean '-h', '--head', 'show req headers before each match'
+        o.boolean '-q', '--quiet', 'do not print anything to stdout'
         o.boolean '--version', 'show version' do
           puts "httpdisk-grep #{HTTPDisk::VERSION}"
           exit
