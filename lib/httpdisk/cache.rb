@@ -38,6 +38,12 @@ module HTTPDisk
       Zlib::GzipWriter.open(path) { payload.write(_1) }
     end
 
+    # Delete existing response, if any
+    def delete(cache_key)
+      path = diskpath(cache_key)
+      FileUtils.rm(path) if File.exist?(path)
+    end
+
     # Relative path for this cache_key based on the cache key
     def diskpath(cache_key)
       File.join(dir, cache_key.diskpath)

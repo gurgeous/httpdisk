@@ -73,4 +73,12 @@ class TestCache < MiniTest::Test
     @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60, force_errors: true)
     assert_equal %i[miss hit stale force stale], seq.call
   end
+
+  def test_delete
+    ck = ck('http://hello')
+    @cache.write(ck, payload(body: 'hi'))
+    assert_equal :hit, @cache.status(ck)
+    @cache.delete(ck)
+    assert_equal :miss, @cache.status(ck)
+  end
 end

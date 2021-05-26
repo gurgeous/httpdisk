@@ -10,7 +10,10 @@ spec = Gem::Specification.load('httpdisk.gemspec')
 #
 
 # test (default)
-Rake::TestTask.new { _1.libs << 'test' }
+Rake::TestTask.new do
+  _1.libs << 'test'
+  _1.warning = false # https://github.com/lostisland/faraday/issues/1285
+end
 task default: :test
 
 # Watch rb files, run tests whenever something changes
