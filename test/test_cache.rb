@@ -23,7 +23,7 @@ class TestCache < MiniTest::Test
     ck = ck('http://hello')
 
     # write
-    write_payload = create_payload(headers: { HELLO: 'wor:ld', name: 'john' })
+    write_payload = payload(headers: { HELLO: 'wor:ld', name: 'john' })
     @cache.write(ck, write_payload)
 
     # read
@@ -44,7 +44,7 @@ class TestCache < MiniTest::Test
         results << @cache.status(ck)
 
         # fresh hit
-        @cache.write(ck, create_payload)
+        @cache.write(ck, payload)
         results << @cache.status(ck)
 
         # stale hit
@@ -52,7 +52,7 @@ class TestCache < MiniTest::Test
         results << @cache.status(ck)
 
         # fresh error
-        @cache.write(ck, create_payload(status: 500))
+        @cache.write(ck, payload(status: 500))
         results << @cache.status(ck)
 
         # stale error
@@ -72,17 +72,5 @@ class TestCache < MiniTest::Test
     # force_errors
     @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60, force_errors: true)
     assert_equal %i[miss hit stale force stale], seq.call
-  end
-
-  protected
-
-  def create_payload(body: nil, comment: nil, reason_phrase: nil, status: nil, headers: {})
-    HTTPDisk::Payload.new.tap do
-      _1.body = body || 'somebody'
-      _1.comment = comment || 'hi there'
-      _1.headers.update(headers)
-      _1.reason_phrase = reason_phrase || 'OK'
-      _1.status = status || 200
-    end
   end
 end

@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+#
+# Search an HTTPDisk cache, similar to grep.
+#
+
+$LOAD_PATH.unshift(File.join(__dir__, '../lib'))
+
+def puts_error(s)
+  $stderr.puts "httpdisk-grep: #{s}"
+end
+
+#
+# Load the bare minimum and parse args with slop. We do this separately for speed.
+#
+
+require 'httpdisk/grep'
+begin
+  slop = HTTPDisk::Grep.slop(ARGV)
+rescue Slop::Error => e
+  puts_error(e) if e.message != ''
+  puts_error("try 'httpdisk --help' for more information")
+  exit 1
+end
+
+#
+# now load everything and run
+#
+
+require 'httpdisk'
+
+grep = HTTPDisk::Grep.new(slop)
+begin
+  success = grep.run
+  exit 1 if !success
+rescue StandardError => e
+  puts_error(e)
+  if ENV['HTTPDISK_DEBUG']
+    $stderr.puts
+    $stderr.puts e.class
+    $stderr.puts e.backtrace.join("\n")
+  end
+  exit 2
+end

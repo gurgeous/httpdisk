@@ -43,7 +43,7 @@ module HTTPDisk
       status >= 400
     end
 
-    def write(f)
+    def write_header(f)
       # comment
       f.puts "# #{comment}"
 
@@ -52,9 +52,11 @@ module HTTPDisk
 
       # headers
       headers.each { f.puts("#{_1}: #{_2}") }
-      f.puts
+    end
 
-      # body
+    def write(f)
+      write_header(f)
+      f.puts
       f.write(body)
     end
   end
