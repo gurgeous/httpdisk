@@ -36,7 +36,6 @@ class TestCli < MiniTest::Test
     assert_raises(HTTPDisk::CliError) { cli('--expires 1z ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('--header bad ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('--request bad ignore.com').run }
-    assert_raises(HTTPDisk::CliError) { cli('--proxy : ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('{}').run }
   end
 
@@ -90,20 +89,6 @@ class TestCli < MiniTest::Test
 
     cli('--proxy boom:123 silent').run
     assert_requested(:get, 'silent', times: 1)
-  end
-
-  def test_proxy_parsing
-    cli = HTTPDisk::Cli.new(nil)
-    parse = ->(s) { cli.parse_proxy(s) }
-
-    # valid
-    assert_equal 'http://gub', parse.call('gub')
-    assert_equal 'http://gub:123', parse.call('gub:123')
-
-    # invalid
-    ['', ':', 'a:', ':80', 'a:b', 'http://gub'].each do
-      assert_nil parse.call(_1)
-    end
   end
 
   def test_url

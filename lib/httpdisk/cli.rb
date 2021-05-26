@@ -56,7 +56,7 @@ module HTTPDisk
     def create_faraday
       Faraday.new do
         # connection settings
-        _1.proxy = proxy if options[:proxy]
+        _1.proxy = options[:proxy] if options[:proxy]
         _1.options.timeout = options[:max_time] if options[:max_time]
 
         # cookie middleware
@@ -181,16 +181,6 @@ module HTTPDisk
         client_options[:force] = options[:force]
         client_options[:force_errors] = options[:force_errors]
       end
-    end
-
-    # Return validated --proxy flag if present
-    def proxy
-      return if !options[:proxy]
-
-      proxy = parse_proxy(options[:proxy])
-      raise CliError, "--proxy should be host[:port], not #{options[:proxy].inspect}" if !proxy
-
-      proxy
     end
 
     # Parse --expires flag
