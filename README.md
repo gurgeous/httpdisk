@@ -177,7 +177,12 @@ Specific to httpdisk:
 
 ## Changelog
 
-#### 0.3 (unreleased)
+#### 0.4 (unreleased)
+
+- added httpdisk-grep, for searching cache files
+- added HTTPDisk::Cache#delete
+
+#### 0.3
 
 - added :ignore_params, for ignoring query params when generating cache keys
 - HTTP 40x & 50x responses return :error status (and respond to `force_error`)

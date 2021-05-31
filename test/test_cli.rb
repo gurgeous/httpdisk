@@ -92,12 +92,12 @@ class TestCli < MiniTest::Test
   end
 
   def test_url
-    assert_equal URI.parse('https://a.com'), HTTPDisk::Cli.new(url: 'https://a.com').request_url
-    assert_equal URI.parse('http://a.com'), HTTPDisk::Cli.new(url: 'a.com').request_url
+    assert_equal URI.parse('https://a.com'), HTTPDisk::Cli::Main.new(url: 'https://a.com').request_url
+    assert_equal URI.parse('http://a.com'), HTTPDisk::Cli::Main.new(url: 'a.com').request_url
 
     # zero or >1 urls result in an error
     [[], ['a.com', 'b.com']].each do
-      assert_raises { HTTPDisk::Cli.slop(_1) }
+      assert_raises { HTTPDisk::Cli::Main.slop(_1) }
     end
   end
 
@@ -114,7 +114,7 @@ class TestCli < MiniTest::Test
     cli = cli('--expires 99 silent')
     assert_equal 99, cli.client_options[:expires_in]
 
-    cli = HTTPDisk::Cli.new(nil)
+    cli = HTTPDisk::Cli::Main.new(nil)
     parse = ->(s) { cli.parse_expires(s) }
 
     # valid
@@ -151,6 +151,6 @@ class TestCli < MiniTest::Test
   def cli(args)
     args = args.split if args.is_a?(String)
     args += ['--dir', @tmpdir] if !args.include?('--dir')
-    HTTPDisk::Cli.new(HTTPDisk::CliSlop.slop(args))
+    HTTPDisk::Cli::Main.new(HTTPDisk::Cli::Args.slop(args))
   end
 end

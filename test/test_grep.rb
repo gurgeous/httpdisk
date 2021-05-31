@@ -64,7 +64,7 @@ class TestGrep < MiniTest::Test
   end
 
   def test_body_processing
-    grep = HTTPDisk::Grep.new(nil)
+    grep = HTTPDisk::Grep::Main.new(nil)
 
     # honor charset
     payload = OpenStruct.new.tap do
@@ -85,6 +85,6 @@ class TestGrep < MiniTest::Test
 
   def grep(args)
     args = args.split if args.is_a?(String)
-    HTTPDisk::Grep.new(HTTPDisk::Grep.slop(args))
+    HTTPDisk::Grep::Main.new(HTTPDisk::Grep::Args.slop(args))
   end
 end

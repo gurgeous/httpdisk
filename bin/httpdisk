@@ -14,9 +14,9 @@ end
 # Load the bare minimum and parse args with slop. We do this separately for speed.
 #
 
-require 'httpdisk/cli_slop'
+require 'httpdisk/cli/args'
 begin
-  slop = HTTPDisk::CliSlop.slop(ARGV)
+  slop = HTTPDisk::Cli::Args.slop(ARGV)
 rescue Slop::Error => e
   puts_error(e) if e.message != ''
   puts_error("try 'httpdisk --help' for more information")
@@ -28,7 +28,7 @@ end
 #
 
 require 'httpdisk'
-cli = HTTPDisk::Cli.new(slop)
+cli = HTTPDisk::Cli::Main.new(slop)
 begin
   cli.run
 rescue StandardError => e

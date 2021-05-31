@@ -14,9 +14,9 @@ end
 # Load the bare minimum and parse args with slop. We do this separately for speed.
 #
 
-require 'httpdisk/grep'
+require 'httpdisk/grep/args'
 begin
-  slop = HTTPDisk::Grep.slop(ARGV)
+  slop = HTTPDisk::Grep::Args.slop(ARGV)
 rescue Slop::Error => e
   puts_error(e) if e.message != ''
   puts_error("try 'httpdisk --help' for more information")
@@ -29,7 +29,7 @@ end
 
 require 'httpdisk'
 
-grep = HTTPDisk::Grep.new(slop)
+grep = HTTPDisk::Grep::Main.new(slop)
 begin
   success = grep.run
   exit 1 if !success
