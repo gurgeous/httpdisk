@@ -163,9 +163,12 @@ Specific to httpdisk:
     --force           don't read anything from cache (but still write)
     --force-errors    don't read errors from cache (but still write)
     --status          show status for a url in the cache
-    --version         show version
-    --help            show this help
 ```
+
+## Goodies: httpdisk-grep
+
+The `httpdisk-grep` command makes it easy to search your cache directory.
+It can be challenging to use grep/ripgrep because cache files are compressed and JSON bodies often lack newlines. httpdisk-grep is the right tool for the job. See `httpdisk-grep --help`.
 
 ## Limitations & Gotchas
 
@@ -179,7 +182,7 @@ Specific to httpdisk:
 
 #### 0.4 (unreleased)
 
-- added httpdisk-grep, for searching cache files
+- added httpdisk-grep for searching cache files
 - added HTTPDisk::Cache#delete
 - rename `:expires_in` to `:expires`
 
