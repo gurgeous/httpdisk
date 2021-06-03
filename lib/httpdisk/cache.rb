@@ -9,7 +9,7 @@ module HTTPDisk
       @options = options
     end
 
-    %i[dir expires_in force force_errors].each do |method|
+    %i[dir expires force force_errors].each do |method|
       define_method(method) do
         options[method]
       end
@@ -67,7 +67,7 @@ module HTTPDisk
 
     # Is this path expired?
     def expired?(path)
-      expires_in && File.stat(path).mtime < Time.now - expires_in
+      expires && File.stat(path).mtime < Time.now - expires
     end
   end
 end

@@ -4,7 +4,7 @@ require 'json'
 module HTTPDisk
   module Grep
     class Main
-      attr_reader :options, :success, :tty
+      attr_reader :options, :success
 
       def initialize(options)
         @options = options
@@ -21,7 +21,7 @@ module HTTPDisk
               $stderr.puts e.class
               $stderr.puts e.backtrace.join("\n")
             end
-            raise GrepError, "#{e.message[0, 70]} (#{_1})"
+            raise CliError, "#{e.message[0, 70]} (#{_1})"
           end
         end
         success
@@ -95,8 +95,8 @@ module HTTPDisk
       # printer for output
       def printer
         @printer ||= case
-        when options[:quiet]
-          Grep::QuietPrinter.new
+        when options[:silent]
+          Grep::SilentPrinter.new
         when options[:count]
           Grep::CountPrinter.new($stdout)
         when options[:head] || $stdout.tty?

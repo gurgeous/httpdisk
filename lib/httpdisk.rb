@@ -14,7 +14,3 @@ require 'httpdisk/cli/main'
 require 'httpdisk/grep/args'
 require 'httpdisk/grep/main'
 require 'httpdisk/grep/printer'
-
-module HTTPDisk
-  ERROR_STATUS = 999
-end

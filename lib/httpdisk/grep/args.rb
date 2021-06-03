@@ -11,7 +11,7 @@ module HTTPDisk
           o.banner = 'httpdisk-grep [options] pattern [path ...]'
           o.boolean '-c', '--count', 'suppress normal output and show count'
           o.boolean '-h', '--head', 'show req headers before each match'
-          o.boolean '-q', '--quiet', 'do not print anything to stdout'
+          o.boolean '-s', '--silent', 'do not print anything to stdout'
           o.boolean '--version', 'show version' do
             puts "httpdisk-grep #{HTTPDisk::VERSION}"
             exit

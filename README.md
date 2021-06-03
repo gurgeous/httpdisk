@@ -125,7 +125,7 @@ In general, if you make a request it will be cached regardless of the outcome.
 httpdisk supports a few options:
 
 - `dir:` location for disk cache, defaults to `~/httpdisk`
-- `expires_in:` when to expire cached requests, default is nil (never expire)
+- `expires:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
 - `ignore_params:` array of query params to ignore when calculating cache_key
@@ -135,7 +135,7 @@ Pass these in when setting up Faraday:
 
 ```ruby
 faraday = Faraday.new do
-  _1.use :httpdisk, expires_in: 7*24*60*60, force: true
+  _1.use :httpdisk, expires: 7*24*60*60, force: true
 end
 ```
 
@@ -181,6 +181,7 @@ Specific to httpdisk:
 
 - added httpdisk-grep, for searching cache files
 - added HTTPDisk::Cache#delete
+- rename `:expires_in` to `:expires`
 
 #### 0.3
 

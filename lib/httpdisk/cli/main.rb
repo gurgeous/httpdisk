@@ -22,13 +22,6 @@ module HTTPDisk
         @options = options
       end
 
-      # we have a very liberal retry policy
-      RETRY_OPTIONS = {
-        methods: %w[delete get head options patch post put trace],
-        retry_statuses: (400..600).to_a,
-        retry_if: ->(_env, _err) { true },
-      }.freeze
-
       # Make the request (or print status)
       def run
         # short circuit --status
@@ -71,7 +64,14 @@ module HTTPDisk
 
           # AFTER httpdisk so transient failures are not cached
           if options[:retry]
-            _1.request :retry, RETRY_OPTIONS.merge(max: options[:retry])
+            # we have a very liberal retry policy
+            retry_options = {
+              max: options[:retry],
+              methods: %w[delete get head options patch post put trace],
+              retry_statuses: (500..600).to_a,
+              retry_if: ->(_env, _err) { true },
+            }
+            _1.request :retry, retry_options
           end
         end
       end
@@ -177,7 +177,7 @@ module HTTPDisk
               raise CliError, "invalid --expires #{options[:expires].inspect}"
             end
 
-            client_options[:expires_in] = seconds
+            client_options[:expires] = seconds
           end
           client_options[:force] = options[:force]
           client_options[:force_errors] = options[:force_errors]

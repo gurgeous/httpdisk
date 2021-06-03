@@ -4,7 +4,7 @@ class TestCache < MiniTest::Test
   def setup
     super
 
-    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60)
+    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60)
   end
 
   def test_invalid
@@ -62,15 +62,15 @@ class TestCache < MiniTest::Test
     end
 
     # normal flow
-    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60)
+    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60)
     assert_equal %i[miss hit stale error stale], seq.call
 
     # force
-    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60, force: true)
+    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60, force: true)
     assert_equal %i[miss force stale force stale], seq.call
 
     # force_errors
-    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60, force_errors: true)
+    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60, force_errors: true)
     assert_equal %i[miss hit stale force stale], seq.call
   end
 

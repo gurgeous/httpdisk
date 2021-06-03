@@ -6,33 +6,25 @@ class TestGrep < MiniTest::Test
   def setup
     super
 
-    @cache = HTTPDisk::Cache.new(dir: @tmpdir, expires_in: 60)
+    cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60)
 
     # fruits & veggies
     fruits = %w[apple apricot avocado banana].join("\n")
     veggies = %w[artichoke asparagus beans].join("\n")
-    @cache.write(ck('http://f'), payload(body: fruits, headers: { fruits: 'yum' }))
-    @cache.write(ck('http://v'), payload(body: veggies, headers: { veggies: 'yum' }))
+    cache.write(ck('http://f'), payload(body: fruits, headers: { fruits: 'yum' }))
+    cache.write(ck('http://v'), payload(body: veggies, headers: { veggies: 'yum' }))
 
     ENV['GREP_COLOR'] = '37;45'
-
-    @startdir = Dir.pwd
-    Dir.chdir(@cache.dir)
-  end
-
-  def teardown
-    super
-    Dir.chdir(@startdir)
   end
 
   def test_bin_blackbox
     # --help (fast)
-    output = `#{@startdir}/bin/httpdisk-grep --help`
+    output = `bin/httpdisk-grep --help`
     assert $CHILD_STATUS.success?
     assert_match('pattern', output)
 
     # search (slow)
-    output = `#{@startdir}/bin/httpdisk-grep apple`
+    output = `bin/httpdisk-grep apple #{@tmpdir}`
     assert $CHILD_STATUS.success?
     assert_match('apple', output)
   end
@@ -43,15 +35,15 @@ class TestGrep < MiniTest::Test
     assert_output('') { grep('beef').run }
 
     # success return value
-    assert grep('--quiet ^a').run
-    assert !grep('--quiet beef').run
+    assert grep('--silent ^a').run
+    assert !grep('--silent beef').run
 
     # --count
     assert_output(/:3.*:2/m) { grep('--count ^a').run }
     # --head
     assert_output(/Fruits.*yum/m) { grep('--head apple').run }
-    # --quiet
-    assert_output('') { grep('apple --quiet').run }
+    # --silent
+    assert_output('') { grep('apple --silent').run }
   end
 
   def test_color
@@ -85,6 +77,7 @@ class TestGrep < MiniTest::Test
 
   def grep(args)
     args = args.split if args.is_a?(String)
+    args << @tmpdir
     HTTPDisk::Grep::Main.new(HTTPDisk::Grep::Args.slop(args))
   end
 end

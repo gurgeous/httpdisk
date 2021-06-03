@@ -1,5 +1,5 @@
 module HTTPDisk
-  class CliError < StandardError; end
+  ERROR_STATUS = 999
 
-  class GrepError < StandardError; end
+  class CliError < StandardError; end
 end

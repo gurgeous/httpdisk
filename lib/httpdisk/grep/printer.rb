@@ -80,7 +80,7 @@ module HTTPDisk
       end
     end
 
-    class QuietPrinter < Printer
+    class SilentPrinter < Printer
       def initialize
         super(nil)
       end

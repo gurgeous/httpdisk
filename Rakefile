@@ -18,8 +18,7 @@ task default: :test
 
 # Watch rb files, run tests whenever something changes
 task :watch do
-  # https://superuser.com/a/665208 / https://unix.stackexchange.com/a/42288
-  system("while true; do find . -name '*.rb' | entr -c -d rake; test $? -gt 128 && break; done")
+  sh "find . -name '*.rb' | entr -c rake"
 end
 
 #
@@ -27,7 +26,7 @@ end
 #
 
 task :pry do
-  system 'pry -I lib -r httpdisk.rb'
+  sh 'pry -I lib -r httpdisk.rb'
 end
 
 #

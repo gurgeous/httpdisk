@@ -6,8 +6,10 @@
 
 $LOAD_PATH.unshift(File.join(__dir__, '../lib'))
 
+BIN = File.basename($PROGRAM_NAME)
+
 def puts_error(s)
-  $stderr.puts "httpdisk: #{s}"
+  $stderr.puts "#{BIN}: #{s}"
 end
 
 #
@@ -19,7 +21,7 @@ begin
   slop = HTTPDisk::Cli::Args.slop(ARGV)
 rescue Slop::Error => e
   puts_error(e) if e.message != ''
-  puts_error("try 'httpdisk --help' for more information")
+  puts_error("try '#{BIN} --help' for more information")
   exit 1
 end
 
@@ -28,11 +30,11 @@ end
 #
 
 require 'httpdisk'
-cli = HTTPDisk::Cli::Main.new(slop)
+main = HTTPDisk::Cli::Main.new(slop)
 begin
-  cli.run
+  main.run
 rescue StandardError => e
-  puts_error(e) if !cli.options[:silent]
+  puts_error(e) if !main.options[:silent]
   if ENV['HTTPDISK_DEBUG']
     $stderr.puts
     $stderr.puts e.backtrace.join("\n")

@@ -112,7 +112,7 @@ class TestCli < MiniTest::Test
 
   def test_expires
     cli = cli('--expires 99 silent')
-    assert_equal 99, cli.client_options[:expires_in]
+    assert_equal 99, cli.client_options[:expires]
 
     cli = HTTPDisk::Cli::Main.new(nil)
     parse = ->(s) { cli.parse_expires(s) }

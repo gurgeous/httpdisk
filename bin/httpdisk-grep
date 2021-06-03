@@ -6,8 +6,10 @@
 
 $LOAD_PATH.unshift(File.join(__dir__, '../lib'))
 
+BIN = File.basename($PROGRAM_NAME)
+
 def puts_error(s)
-  $stderr.puts "httpdisk-grep: #{s}"
+  $stderr.puts "#{BIN}: #{s}"
 end
 
 #
@@ -19,7 +21,7 @@ begin
   slop = HTTPDisk::Grep::Args.slop(ARGV)
 rescue Slop::Error => e
   puts_error(e) if e.message != ''
-  puts_error("try 'httpdisk --help' for more information")
+  puts_error("try '#{BIN} --help' for more information")
   exit 1
 end
 
@@ -29,9 +31,9 @@ end
 
 require 'httpdisk'
 
-grep = HTTPDisk::Grep::Main.new(slop)
+main = HTTPDisk::Grep::Main.new(slop)
 begin
-  success = grep.run
+  success = main.run
   exit 1 if !success
 rescue StandardError => e
   puts_error(e)
