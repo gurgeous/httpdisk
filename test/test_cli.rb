@@ -111,7 +111,7 @@ class TestCli < MiniTest::Test
 
   def test_expires
     cli = cli('--expires 1h silent')
-    assert_equal 60*60, cli.client_options[:expires]
+    assert_equal 60 * 60, cli.client_options[:expires]
   end
 
   def test_force
