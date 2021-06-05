@@ -3,6 +3,7 @@ require 'httpdisk/cache'
 require 'httpdisk/client'
 require 'httpdisk/error'
 require 'httpdisk/payload'
+require 'httpdisk/slop_duration'
 require 'httpdisk/sloptions'
 require 'httpdisk/version'
 

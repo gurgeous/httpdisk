@@ -1,5 +1,6 @@
 # manually load dependencies here since this is loaded standalone by bin
 require 'httpdisk/error'
+require 'httpdisk/slop_duration'
 require 'httpdisk/version'
 require 'slop'
 
@@ -27,7 +28,7 @@ module HTTPDisk
           # from httpdisk
           o.separator 'Specific to httpdisk:'
           o.string '--dir', 'httpdisk cache directory (defaults to ~/httpdisk)'
-          o.string '--expires', 'when to expire cached requests (ex: 1h, 2d, 3w)'
+          o.duration '--expires', 'when to expire cached requests (ex: 1h, 2d, 3w)'
           o.boolean '--force', "don't read anything from cache (but still write)"
           o.boolean '--force-errors', "don't read errors from cache (but still write)"
           o.boolean '--status', 'show status for a url in the cache'

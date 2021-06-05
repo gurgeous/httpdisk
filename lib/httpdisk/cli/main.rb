@@ -8,16 +8,6 @@ module HTTPDisk
     class Main
       attr_reader :options
 
-      # for --expires
-      UNITS = {
-        s: 1,
-        m: 60,
-        h: 60 * 60,
-        d: 24 * 60 * 60,
-        w: 7 * 24 * 60 * 60,
-        y: 365 * 7 * 24 * 60 * 60,
-      }.freeze
-
       def initialize(options)
         @options = options
       end
@@ -169,46 +159,7 @@ module HTTPDisk
 
       # Options to HTTPDisk::Client
       def client_options
-        {}.tap do |client_options|
-          client_options[:dir] = options[:dir]
-          if options[:expires]
-            seconds = parse_expires(options[:expires])
-            if !seconds
-              raise CliError, "invalid --expires #{options[:expires].inspect}"
-            end
-
-            client_options[:expires] = seconds
-          end
-          client_options[:force] = options[:force]
-          client_options[:force_errors] = options[:force_errors]
-        end
-      end
-
-      # Parse --expires flag
-      def parse_expires(s)
-        m = s.match(/^(\d+)([smhdwy])?$/)
-        return if !m
-
-        num, unit = m[1].to_i, (m[2] || 's').to_sym
-        return if !UNITS.key?(unit)
-
-        num * UNITS[unit]
-      end
-
-      # Parse --proxy flag
-      def parse_proxy(proxy_flag)
-        host, port = proxy_flag.split(':', 2)
-        return if !host || host.empty?
-        return if port&.empty?
-
-        URI.parse('http://placeholder').tap do
-          begin
-            _1.host = host
-            _1.port = port if port
-          rescue URI::InvalidComponentError
-            return
-          end
-        end.to_s
+        options.slice(:dir, :expires, :force, :force_errors)
       end
     end
   end

@@ -180,7 +180,7 @@ It can be challenging to use grep/ripgrep because cache files are compressed and
 
 ## Changelog
 
-#### 0.4 (unreleased)
+#### 0.4
 
 - added httpdisk-grep for searching cache files
 - added HTTPDisk::Cache#delete

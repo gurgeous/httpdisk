@@ -33,7 +33,6 @@ class TestCli < MiniTest::Test
   end
 
   def test_bad_options
-    assert_raises(HTTPDisk::CliError) { cli('--expires 1z ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('--header bad ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('--request bad ignore.com').run }
     assert_raises(HTTPDisk::CliError) { cli('{}').run }
@@ -111,29 +110,8 @@ class TestCli < MiniTest::Test
   end
 
   def test_expires
-    cli = cli('--expires 99 silent')
-    assert_equal 99, cli.client_options[:expires]
-
-    cli = HTTPDisk::Cli::Main.new(nil)
-    parse = ->(s) { cli.parse_expires(s) }
-
-    # valid
-    {
-      '1': 1,
-      '1s': 1,
-      '1m': 60,
-      '1h': (60 * 60),
-      '1d': (24 * 60 * 60),
-      '1w': (7 * 24 * 60 * 60),
-      '1y': (365 * 7 * 24 * 60 * 60),
-    }.each do
-      assert_equal _2, parse.call(_1.to_s)
-    end
-
-    # invalid
-    ['', '1z', 'gub'].each do
-      assert_nil parse.call(_1)
-    end
+    cli = cli('--expires 1h silent')
+    assert_equal 60*60, cli.client_options[:expires]
   end
 
   def test_force
