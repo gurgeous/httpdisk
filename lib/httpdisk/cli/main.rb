@@ -73,7 +73,8 @@ module HTTPDisk
           _1.method = request_method
           _1.request_body = request_body
           _1.request_headers = request_headers
-          _1.url = request_url
+          # Run the url through Faraday to make sure we see the same stuff as middleware.
+          _1.url = Faraday.new.build_url(request_url)
         end
 
         # now print status

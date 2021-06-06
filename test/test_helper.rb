@@ -24,7 +24,7 @@ module MiniTest
         _1.body = body
         _1.request_headers = request_headers
         _1.method = method
-        _1.url = URI.parse(url)
+        _1.url = Faraday.new.build_url(url)
       end
       HTTPDisk::CacheKey.new(env, ignore_params: ignore_params)
     end
