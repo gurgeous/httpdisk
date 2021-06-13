@@ -35,7 +35,16 @@ module HTTPDisk
     def write(cache_key, payload)
       path = diskpath(cache_key)
       FileUtils.mkdir_p(File.dirname(path))
-      Zlib::GzipWriter.open(path) { payload.write(_1) }
+
+      # atomically write gzipped payload
+      Tempfile.new.tap do |tmp|
+        Zlib::GzipWriter.new(tmp).tap do |gzip|
+          payload.write(gzip)
+          gzip.close
+        end
+        tmp.close
+        FileUtils.mv(tmp.path, path)
+      end
     end
 
     # Delete existing response, if any
@@ -59,7 +68,11 @@ module HTTPDisk
       return :stale if expired?(path)
       return :force if force?
 
-      payload = Zlib::GzipReader.open(path) { Payload.read(_1, peek: peek) }
+      begin
+        payload = Zlib::GzipReader.open(path) { Payload.read(_1, peek: peek) }
+      rescue StandardError => e
+        raise "#{path}: #{e}"
+      end
       return :force if force_errors? && payload.error?
 
       payload
