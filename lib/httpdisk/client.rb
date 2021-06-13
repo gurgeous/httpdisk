@@ -23,6 +23,7 @@ module HTTPDisk
     def call(env)
       cache_key = CacheKey.new(env, ignore_params: ignore_params)
       logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
+      env[:httpdisk_diskpath] = cache.diskpath(cache_key)
 
       if cached_response = read(cache_key, env)
         cached_response.env[:httpdisk] = true
