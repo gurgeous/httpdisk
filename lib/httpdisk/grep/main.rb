@@ -29,7 +29,9 @@ module HTTPDisk
 
       def run_one(path)
         # read payload & body
-        payload = Zlib::GzipReader.open(path) { Payload.read(_1) }
+        payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
+          Payload.read(_1)
+        end
         body = prepare_body(payload)
 
         # collect all_matches

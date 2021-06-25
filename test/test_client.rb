@@ -1,6 +1,8 @@
 require_relative 'test_helper'
 
 class TestClient < MiniTest::Test
+  CAFE = 'café'.encode('ISO-8859-1').freeze
+
   def setup
     super
 
@@ -33,6 +35,78 @@ class TestClient < MiniTest::Test
     end
     assert_requested(:post, 'http://httpbingo', times: 1)
     assert_responses_equal r1, r2
+  end
+
+  def test_content_type
+    # Content-Type: nil
+    r1, r2 = (1..2).map { @faraday.get 'http://httpbingo' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
+
+    # Content-Type: bogus (shouldn't crash)
+    stub_request(:get, 'bogus').to_return(
+      headers: { 'Content-Type' => 'text/html; charset=bogus' }
+    )
+    r1, r2 = (1..2).map { @faraday.get 'http://bogus' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
+
+    # Content-Type: ISO-8859-1
+    stub_request(:get, 'cafe').to_return(
+      headers: { 'Content-Type' => 'text/html; charset=iso-8859-1' },
+      body: CAFE
+    )
+    r1, r2 = (1..2).map { @faraday.get 'http://cafe' }
+    [r1, r2].each do
+      assert_equal Encoding::ISO_8859_1, _1.body.encoding
+      assert_equal CAFE, _1.body
+    end
+  end
+
+  def test_content_type_option_utf8
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, utf8: true
+    end
+
+    # Content-Type: nil (ascii)
+    r1, r2 = (1..2).map { faraday.get 'http://httpbingo' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
+
+    # Content-Type: image/png (ascii)
+    stub_request(:get, 'png').to_return(
+      headers: { 'Content-Type' => 'image/png' },
+      body: 'png'
+    )
+    r1, r2 = (1..2).map { faraday.get 'http://png' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
+
+    # Content-Type: ISO-8859-1 (convert to utf8)
+    stub_request(:get, 'cafe').to_return(
+      headers: { 'Content-Type' => 'text/html; charset=iso-8859-1' },
+      body: CAFE
+    )
+    r1, r2 = (1..2).map { faraday.get 'http://cafe' }
+    [r1, r2].each do
+      assert_equal Encoding::UTF_8, _1.body.encoding
+      assert_equal 'café', _1.body
+    end
+
+    # Content-Type: UTF-7 (can't convert to UTF-8)
+    stub_request(:get, 'utf7').to_return(
+      headers: { 'Content-Type' => 'text/html; charset=UTF-7' },
+      body: 'hello'.force_encoding('UTF-7')
+    )
+    r1, r2 = (1..2).map { faraday.get('http://utf7') }
+    [r1, r2].each do
+      assert_match(/could not convert/, _1.body)
+      assert_equal Encoding::UTF_8, _1.body.encoding
+    end
   end
 
   # these are the most common errors

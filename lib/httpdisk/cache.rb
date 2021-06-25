@@ -36,8 +36,11 @@ module HTTPDisk
       path = diskpath(cache_key)
       FileUtils.mkdir_p(File.dirname(path))
 
-      # atomically write gzipped payload
-      Tempfile.new.tap do |tmp|
+      # Atomically write gzipped payload. Put our underlying Tempfile into
+      # binmode to avoid accidental newline conversion or string encoding. Not
+      # required for *nix systems, but I've heard rumors it's helpful for
+      # Windows.
+      Tempfile.new(binmode: true).tap do |tmp|
         Zlib::GzipWriter.new(tmp).tap do |gzip|
           payload.write(gzip)
           gzip.close
@@ -69,7 +72,9 @@ module HTTPDisk
       return :force if force?
 
       begin
-        payload = Zlib::GzipReader.open(path) { Payload.read(_1, peek: peek) }
+        payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
+          Payload.read(_1, peek: peek)
+        end
       rescue StandardError => e
         raise "#{path}: #{e}"
       end

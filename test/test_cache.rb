@@ -81,4 +81,18 @@ class TestCache < MiniTest::Test
     @cache.delete(ck)
     assert_equal :miss, @cache.status(ck)
   end
+
+  def test_bad_header_encoding
+    # response headers are supposed to be ascii, but that isn't always the case
+    ck = ck('http://hello')
+
+    # write
+    cafe = 'café'.encode('ISO-8859-1')
+    write_payload = payload(headers: { cafe: cafe })
+    @cache.write(ck, write_payload)
+
+    # read
+    read_payload = @cache.read(ck)
+    assert_equal cafe.b, read_payload.headers[:cafe]
+  end
 end

@@ -160,7 +160,9 @@ module HTTPDisk
 
       # Options to HTTPDisk::Client
       def client_options
-        options.slice(:dir, :expires, :force, :force_errors)
+        client_options = options.slice(:dir, :expires, :force, :force_errors)
+        client_options[:utf8] = true
+        client_options
       end
     end
   end

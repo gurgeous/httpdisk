@@ -17,10 +17,12 @@ Style/Documentation: { Enabled: false }
 Style/DoubleNegation: { Enabled: false }
 Style/EmptyCaseCondition: { Enabled: false }
 Style/FrozenStringLiteralComment: { Enabled: false }
+Style/GuardClause: { Enabled: false }
 Style/IfUnlessModifier: { Enabled: false }
 Style/NegatedIf: { Enabled: false }
 Style/NumericPredicate: { Enabled: false }
 Style/ParallelAssignment: { Enabled: false }
+Style/SoleNestedConditional: { Enabled: false }
 Style/StderrPuts: { Enabled: false }
 Style/TrailingCommaInArrayLiteral: { EnforcedStyleForMultiline: consistent_comma }
 Style/TrailingCommaInHashLiteral: { EnforcedStyleForMultiline: consistent_comma }

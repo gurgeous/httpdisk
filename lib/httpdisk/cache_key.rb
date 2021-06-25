@@ -10,8 +10,8 @@ module HTTPDisk
       @env, @ignore_params = env, ignore_params
 
       # sanity checks
-      raise 'http/https required' if env.url.scheme !~ /^https?$/
-      raise 'hostname required' if !env.url.host
+      raise InvalidUrl, "http/https required #{env.url.inspect}" if env.url.scheme !~ /^https?$/
+      raise InvalidUrl, "hostname required #{env.url.inspect}" if !env.url.host
     end
 
     def url

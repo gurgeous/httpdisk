@@ -14,6 +14,7 @@ module HTTPDisk
         _1.boolean :force_errors
         _1.array :ignore_params, default: []
         _1.on :logger, type: [:boolean, Logger]
+        _1.boolean :utf8
       end
 
       super(app, options)
@@ -25,16 +26,17 @@ module HTTPDisk
       logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
       env[:httpdisk_diskpath] = cache.diskpath(cache_key)
 
-      if cached_response = read(cache_key, env)
-        cached_response.env[:httpdisk] = true
-        return cached_response
-      end
-
-      # miss
-      perform(env).tap do |response|
+      # check cache, fallback to network
+      if response = read(cache_key, env)
+        response.env[:httpdisk] = true
+      else
+        response = perform(env)
         response.env[:httpdisk] = false
         write(cache_key, env, response)
       end
+
+      encode_body(response)
+      response
     end
 
     # Returns cache status for this request
@@ -100,6 +102,50 @@ module HTTPDisk
       return if !err.is_a?(Faraday::ConnectionFailed)
 
       err.to_s =~ /#{proxy.host}.*#{proxy.port}/
+    end
+
+    # Set string encoding for response body. The cache always returns
+    # ASCII-8BIT, but we have no idea what the encoding will be from the
+    # network. Not all adapters honor Content-Type (including the default
+    # adapter).
+    def encode_body(response)
+      # first look at Content-Type and set encoding if necessary
+      body = response.body || ''
+      if (encoding = encoding_for(response)) && (body.encoding != encoding)
+        body = body.dup if body.frozen?
+        body.force_encoding(encoding)
+      end
+
+      # :utf8 flag
+      if options[:utf8] && response_text?(response)
+        body = body.dup if body.frozen?
+        begin
+          body.encode!('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+        rescue Encoding::ConverterNotFoundError
+          # rare
+          body = "httpdisk could not convert from #{body.encoding.name} to UTF-8"
+        end
+      end
+
+      response.env[:body] = body
+    end
+
+    # Get Encoding for response Content-Type
+    def encoding_for(response)
+      if content_type = response['Content-Type']
+        if encoding = content_type[/\bcharset=\s*(.+?)\s*(;|$)/, 1]
+          begin
+            return Encoding.find(encoding)
+          rescue ArgumentError
+            # nop
+          end
+        end
+      end
+      Encoding::ASCII_8BIT
+    end
+
+    def response_text?(response)
+      response['Content-Type'] =~ %r{^(text/|application/json)\b}
     end
 
     #

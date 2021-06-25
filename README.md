@@ -65,7 +65,6 @@ faraday = Faraday.new do
   _1.request :url_encoded # auto-encode form bodies
   _1.response :json # auto-decode JSON responses
   _1.response :follow_redirects # follow redirects (should be above httpdisk)
-  _1.response :encoding # set Ruby string encoding based on Content-Type (should be above httpdisk)
   _1.use :httpdisk
   _1.request :retry # retry failed responses (should be below httpdisk)
 end
@@ -120,6 +119,10 @@ httpdisk caches all responses. POST responses are cached, along with 500 respons
 
 In general, if you make a request it will be cached regardless of the outcome.
 
+## String Encoding
+
+httpdisk will honor the `Content-Type` from responses. Unfortunately, it is entirely possible to get invalid bodies if the `Content-Type` doesn't match the bytes. This is a major bummer, so httpdisk provides a `utf8:` option that forces text response bodies to UTF-8.
+
 ## Configuration
 
 httpdisk supports a few options:
@@ -130,6 +133,7 @@ httpdisk supports a few options:
 - `force_errors:` don't read errors from cache (but still write)
 - `ignore_params:` array of query params to ignore when calculating cache_key
 - `logger`: log requests to stderr, or pass your own logger
+- `utf8`: if true, force text response bodies to valid UTF-8
 
 Pass these in when setting up Faraday:
 
@@ -179,6 +183,11 @@ It can be challenging to use grep/ripgrep because cache files are compressed and
 - httpdisk does not work with Faraday's parallel mode or `on_complete`.
 
 ## Changelog
+
+#### 0.5
+
+- honor Content-Type
+- added `:utf8` option to force text-like response bodies to UTF-8
 
 #### 0.4
 
