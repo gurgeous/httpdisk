@@ -1,3 +1,4 @@
+require 'content-type'
 require 'faraday'
 require 'logger'
 
@@ -109,20 +110,29 @@ module HTTPDisk
     # network. Not all adapters honor Content-Type (including the default
     # adapter).
     def encode_body(response)
-      # first look at Content-Type and set encoding if necessary
       body = response.body || ''
-      if (encoding = encoding_for(response)) && (body.encoding != encoding)
+
+      # parse Content-Type
+      begin
+        content_type = response['Content-Type'] && ContentType.parse(response['Content-Type'])
+      rescue Parslet::ParseFailed
+        # unparsable
+      end
+
+      # look at charset and set body encoding if necessary
+      encoding = encoding_for(content_type)
+      if body.encoding != encoding
         body = body.dup if body.frozen?
         body.force_encoding(encoding)
       end
 
-      # :utf8 flag
-      if options[:utf8] && response_text?(response)
+      # if :utf8, force body to UTF-8
+      if options[:utf8] && content_type && response_text?(content_type)
         body = body.dup if body.frozen?
         begin
           body.encode!('UTF-8', invalid: :replace, undef: :replace, replace: '?')
         rescue Encoding::ConverterNotFoundError
-          # rare
+          # rare, can't do anything here
           body = "httpdisk could not convert from #{body.encoding.name} to UTF-8"
         end
       end
@@ -130,22 +140,17 @@ module HTTPDisk
       response.env[:body] = body
     end
 
-    # Get Encoding for response Content-Type
-    def encoding_for(response)
-      if content_type = response['Content-Type']
-        if encoding = content_type[/\bcharset=\s*(.+?)\s*(;|$)/, 1]
-          begin
-            return Encoding.find(encoding)
-          rescue ArgumentError
-            # nop
-          end
-        end
+    def encoding_for(content_type)
+      begin
+        return Encoding.find(content_type.charset) if content_type
+      rescue ArgumentError
+        # unknown charset
       end
       Encoding::ASCII_8BIT
     end
 
-    def response_text?(response)
-      response['Content-Type'] =~ %r{^(text/|application/json)\b}
+    def response_text?(content_type)
+      content_type.type == 'text' || content_type.mime_type == 'application/json'
     end
 
     #

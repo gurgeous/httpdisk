@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   # gem dependencies
+  s.add_dependency 'content-type', '~> 0.0'
   s.add_dependency 'faraday', '~> 1.4'
   s.add_dependency 'faraday-cookie_jar', '~> 0.0'
   s.add_dependency 'faraday_middleware', '~> 1.0'
