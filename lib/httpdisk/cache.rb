@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tempfile'
 
 module HTTPDisk
   # Disk cache for cache_keys => response. Files are compressed.
