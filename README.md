@@ -171,8 +171,9 @@ Specific to httpdisk:
 
 ## Goodies: httpdisk-grep
 
-The `httpdisk-grep` command makes it easy to search your cache directory.
-It can be challenging to use grep/ripgrep because cache files are compressed and JSON bodies often lack newlines. httpdisk-grep is the right tool for the job. See `httpdisk-grep --help`.
+The `httpdisk-grep` command makes it easy to search your cache directory. It can be challenging to use grep/ripgrep because cache files are compressed and JSON bodies often lack newlines. httpdisk-grep is the right tool for the job. See `httpdisk-grep --help`.
+
+An alternative is to use [ripgrep-all](https://github.com/phiresky/ripgrep-all) with the `--rga-accurate` flag. Ripgrep-all works well for large caches, though it lacks some of the niceties of `httpdisk-grep`.
 
 ## Limitations & Gotchas
 
