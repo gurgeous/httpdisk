@@ -73,6 +73,11 @@ class TestGrep < MiniTest::Test
     assert_equal "{\n  \"a\": 1\n}", grep.prepare_body(payload)
   end
 
+  def test_non_gzip
+    IO.write(File.join(@tmpdir, 'bad'), '')
+    assert_output(/not in gzip/) { grep('xyz').run }
+  end
+
   protected
 
   def grep(args)

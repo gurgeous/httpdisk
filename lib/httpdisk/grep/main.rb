@@ -29,9 +29,15 @@ module HTTPDisk
 
       def run_one(path)
         # read payload & body
-        payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
-          Payload.read(_1)
+        begin
+          payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
+            Payload.read(_1)
+          end
+        rescue Zlib::GzipFile::Error
+          puts "httpdisk: #{path} not in gzip format, skipping" if !options[:silent]
+          return
         end
+
         body = prepare_body(payload)
 
         # collect all_matches
