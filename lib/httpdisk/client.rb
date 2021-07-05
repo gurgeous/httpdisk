@@ -141,10 +141,12 @@ module HTTPDisk
     end
 
     def encoding_for(content_type)
-      begin
-        return Encoding.find(content_type.charset) if content_type
-      rescue ArgumentError
-        # unknown charset
+      if content_type&.charset
+        begin
+          return Encoding.find(content_type.charset)
+        rescue ArgumentError
+          # unknown charset
+        end
       end
       Encoding::ASCII_8BIT
     end

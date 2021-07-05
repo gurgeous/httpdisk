@@ -63,6 +63,15 @@ class TestClient < MiniTest::Test
       assert_equal Encoding::ISO_8859_1, _1.body.encoding
       assert_equal CAFE, _1.body
     end
+
+    # Content-Type: text/xml (ascii)
+    stub_request(:get, 'nocharset').to_return(
+      headers: { 'Content-Type' => 'text/xml' }
+    )
+    r1, r2 = (1..2).map { @faraday.get 'http://nocharset' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
   end
 
   def test_content_type_option_utf8
@@ -72,6 +81,15 @@ class TestClient < MiniTest::Test
 
     # Content-Type: nil (ascii)
     r1, r2 = (1..2).map { faraday.get 'http://httpbingo' }
+    [r1, r2].each do
+      assert_equal Encoding::ASCII_8BIT, _1.body.encoding
+    end
+
+    # Content-Type: text/xml (ascii)
+    stub_request(:get, 'nocharset').to_return(
+      headers: { 'Content-Type' => 'text/xml' }
+    )
+    r1, r2 = (1..2).map { @faraday.get 'http://nocharset' }
     [r1, r2].each do
       assert_equal Encoding::ASCII_8BIT, _1.body.encoding
     end
