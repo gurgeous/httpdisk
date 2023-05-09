@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    httpdisk (0.6.0)
+    httpdisk (1.0.0)
       content-type (~> 0.0)
       faraday (~> 2.7)
       faraday-cookie_jar (~> 0.0)
