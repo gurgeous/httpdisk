@@ -20,4 +20,4 @@ jobs:
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby-version }}
-      - run: just ci
+      - run: just check
