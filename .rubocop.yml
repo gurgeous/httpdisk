@@ -1,28 +1,14 @@
+require:
+  - standard
+
+inherit_gem:
+  standard: config/base.yml
+
 AllCops:
   NewCops: enable
   SuggestExtensions: false
+  TargetRubyVersion: 3.1
 
-# this is buggy in 2.7.0
-Style/HashTransformValues: { Enabled: false }
-
-# minimal personal preference
-Layout/CaseIndentation: { Enabled: false }
-Layout/EndAlignment: { EnforcedStyleAlignWith: variable }
-Lint/AssignmentInCondition: { Enabled: false }
-Lint/NonLocalExitFromIterator: { Enabled: false }
-Metrics: { Enabled: false }
-Naming/MethodParameterName: { Enabled: false }
-Naming/VariableNumber: { Enabled: false }
-Style/Documentation: { Enabled: false }
-Style/DoubleNegation: { Enabled: false }
-Style/EmptyCaseCondition: { Enabled: false }
-Style/FrozenStringLiteralComment: { Enabled: false }
-Style/GuardClause: { Enabled: false }
-Style/IfUnlessModifier: { Enabled: false }
-Style/NegatedIf: { Enabled: false }
-Style/NumericPredicate: { Enabled: false }
-Style/ParallelAssignment: { Enabled: false }
-Style/SoleNestedConditional: { Enabled: false }
-Style/StderrPuts: { Enabled: false }
-Style/TrailingCommaInArrayLiteral: { EnforcedStyleForMultiline: consistent_comma }
-Style/TrailingCommaInHashLiteral: { EnforcedStyleForMultiline: consistent_comma }
+# a couple of overrides
+Style/RedundantReturn: { Enabled: false }
+Style/HashSyntax: { EnforcedShorthandSyntax: always }

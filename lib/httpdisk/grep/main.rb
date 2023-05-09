@@ -1,5 +1,5 @@
-require 'find'
-require 'json'
+require "find"
+require "json"
 
 module HTTPDisk
   module Grep
@@ -13,16 +13,14 @@ module HTTPDisk
       # Enumerate file paths one at a time. Returns true if matches were found.
       def run
         paths.each do
-          begin
-            run_one(_1)
-          rescue StandardError => e
-            if ENV['HTTPDISK_DEBUG']
-              $stderr.puts
-              $stderr.puts e.class
-              $stderr.puts e.backtrace.join("\n")
-            end
-            raise CliError, "#{e.message[0, 70]} (#{_1})"
-          end
+          run_one(_1)
+      rescue => e
+        if ENV["HTTPDISK_DEBUG"]
+          $stderr.puts
+          warn e.class
+          warn e.backtrace.join("\n")
+        end
+        raise CliError, "#{e.message[0, 70]} (#{_1})"
         end
         success
       end
@@ -30,7 +28,7 @@ module HTTPDisk
       def run_one(path)
         # read payload & body
         begin
-          payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
+          payload = Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") do
             Payload.read(_1)
           end
         rescue Zlib::GzipFile::Error
@@ -57,14 +55,14 @@ module HTTPDisk
       def paths
         # roots
         roots = options[:roots]
-        roots = ['.'] if roots.empty?
+        roots = ["."] if roots.empty?
 
         # find files in roots
         paths = roots.flat_map { Find.find(_1).to_a }.sort
         paths = paths.select { File.file?(_1) }
 
         # strip default './'
-        paths = paths.map { _1.gsub(%r{^\./}, '') } if options[:roots].empty?
+        paths = paths.map { _1.gsub(%r{^\./}, "") } if options[:roots].empty?
         paths
       end
 
@@ -72,13 +70,13 @@ module HTTPDisk
       def prepare_body(payload)
         body = payload.body
 
-        if content_type = payload.headers['Content-Type']
+        if (content_type = payload.headers["Content-Type"])
           # Mismatches between Content-Type and body.encoding are fatal, so make
           # an effort to align them.
-          if charset = content_type[/charset=([^;]+)/, 1]
+          if (charset = content_type[/charset=([^;]+)/, 1])
             encoding = begin
               Encoding.find(charset)
-            rescue StandardError
+            rescue
               nil
             end
             if encoding && body.encoding != encoding
@@ -87,7 +85,7 @@ module HTTPDisk
           end
 
           # pretty print json for easier searching
-          if content_type =~ /\bjson\b/
+          if /\bjson\b/.match?(content_type)
             body = JSON.pretty_generate(JSON.parse(body))
           end
         end
@@ -102,12 +100,11 @@ module HTTPDisk
 
       # printer for output
       def printer
-        @printer ||= case
-        when options[:silent]
+        @printer ||= if options[:silent]
           Grep::SilentPrinter.new
-        when options[:count]
+        elsif options[:count]
           Grep::CountPrinter.new($stdout)
-        when options[:head] || $stdout.tty?
+        elsif options[:head] || $stdout.tty?
           Grep::HeaderPrinter.new($stdout, options[:head])
         else
           Grep::TersePrinter.new($stdout)

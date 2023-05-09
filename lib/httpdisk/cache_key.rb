@@ -1,6 +1,6 @@
-require 'cgi'
-require 'digest/md5'
-require 'uri'
+require "cgi"
+require "digest/md5"
+require "uri"
 
 module HTTPDisk
   class CacheKey
@@ -10,7 +10,7 @@ module HTTPDisk
       @env, @ignore_params = env, ignore_params
 
       # sanity checks
-      raise InvalidUrl, "http/https required #{env.url.inspect}" if env.url.scheme !~ /^https?$/
+      raise InvalidUrl, "http/https required #{env.url.inspect}" if !/^https?$/.match?(env.url.scheme)
       raise InvalidUrl, "hostname required #{env.url.inspect}" if !env.url.host
     end
 
@@ -43,23 +43,23 @@ module HTTPDisk
     def calculate_key
       key = []
       key << env.method.upcase
-      key << ' '
+      key << " "
       key << url.scheme
-      key << '://'
+      key << "://"
       key << url.host.downcase
       if !default_port?
-        key << ':'
+        key << ":"
         key << url.port
       end
-      if url.path != '/'
+      if url.path != "/"
         key << url.path
       end
-      if (q = url.query) && q != ''
-        key << '?'
+      if (q = url.query) && q != ""
+        key << "?"
         key << querykey(q)
       end
       if env.request_body
-        key << ' '
+        key << " "
         key << bodykey
       end
       key.join
@@ -68,7 +68,7 @@ module HTTPDisk
     # Calculate cache key segment for body
     def bodykey
       body = env.request_body.to_s
-      if env.request_headers['Content-Type'] == 'application/x-www-form-urlencoded'
+      if env.request_headers["Content-Type"] == "application/x-www-form-urlencoded"
         querykey(body)
       elsif body.length < 50
         body
@@ -79,16 +79,16 @@ module HTTPDisk
 
     # Calculate canonical key for a query
     def querykey(q)
-      parts = q.split('&').sort
+      parts = q.split("&").sort
       if !ignore_params.empty?
         parts = parts.map do |part|
-          key, value = part.split('=', 2)
+          key, value = part.split("=", 2)
           next if ignore_params.include?(key)
 
           "#{key}=#{value}"
         end.compact
       end
-      parts.join('&')
+      parts.join("&")
     end
 
     def default_port?
@@ -98,10 +98,10 @@ module HTTPDisk
     # Calculate nice directory name from url.host
     def hostdir
       hostdir = url.host.downcase
-      hostdir = hostdir.gsub(/^www\./, '')
-      hostdir = hostdir.gsub(/[^a-z0-9._-]/, '')
-      hostdir = hostdir.squeeze('.')
-      hostdir = 'any' if hostdir.empty?
+      hostdir = hostdir.gsub(/^www\./, "")
+      hostdir = hostdir.gsub(/[^a-z0-9._-]/, "")
+      hostdir = hostdir.squeeze(".")
+      hostdir = "any" if hostdir.empty?
       hostdir
     end
   end

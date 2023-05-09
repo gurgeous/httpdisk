@@ -1,7 +1,7 @@
 module HTTPDisk
   module Grep
     class Printer
-      GREP_COLOR = '37;45'.freeze
+      GREP_COLOR = "37;45".freeze
 
       attr_reader :output
 
@@ -9,7 +9,8 @@ module HTTPDisk
         @output = output
       end
 
-      def print(path, payload, all_matches); end
+      def print(path, payload, all_matches)
+      end
 
       protected
 
@@ -18,7 +19,7 @@ module HTTPDisk
       #
 
       def grep_color
-        @grep_color ||= (ENV['GREP_COLOR'] || GREP_COLOR)
+        @grep_color ||= (ENV["GREP_COLOR"] || GREP_COLOR)
       end
 
       def print_matches(matches)
@@ -30,7 +31,7 @@ module HTTPDisk
               result << s[ii..._1.begin(0)]
               result << "\e["
               result << grep_color
-              result << 'm'
+              result << "m"
               result << _1[0]
               result << "\e[0m"
               ii = _1.end(0)

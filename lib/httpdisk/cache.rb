@@ -1,5 +1,5 @@
-require 'fileutils'
-require 'tempfile'
+require "fileutils"
+require "tempfile"
 
 module HTTPDisk
   # Disk cache for cache_keys => response. Files are compressed.
@@ -15,8 +15,8 @@ module HTTPDisk
         options[method]
       end
     end
-    alias force? force
-    alias force_errors? force_errors
+    alias_method :force?, :force
+    alias_method :force_errors?, :force_errors
 
     # Get cached response. If there is a cached error it will be raised.
     def read(cache_key)
@@ -73,10 +73,10 @@ module HTTPDisk
       return :force if force?
 
       begin
-        payload = Zlib::GzipReader.open(path, encoding: 'ASCII-8BIT') do
-          Payload.read(_1, peek: peek)
+        payload = Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") do
+          Payload.read(_1, peek:)
         end
-      rescue StandardError => e
+      rescue => e
         raise "#{path}: #{e}"
       end
       return :force if force_errors? && payload.error?

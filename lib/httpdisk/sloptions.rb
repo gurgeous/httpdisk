@@ -32,10 +32,10 @@ module HTTPDisk
 
     %i[array boolean float hash integer string symbol].each do |method|
       define_method(method) do |flag, foptions = {}|
-        on(flag, { type: method }.merge(foptions))
+        on(flag, {type: method}.merge(foptions))
       end
     end
-    alias bool boolean
+    alias_method :bool, :boolean
 
     #
     # return parsed options
@@ -96,9 +96,9 @@ module HTTPDisk
     def error_message(flag, value, valid)
       classes = valid.compact.map do
         s = _1.to_s
-        s = s.downcase if s =~ /\b(Array|Float|Hash|Integer|String|Symbol)\b/
+        s = s.downcase if /\b(Array|Float|Hash|Integer|String|Symbol)\b/.match?(s)
         s
-      end.join('/')
+      end.join("/")
       "expected :#{flag} to be #{classes}, not #{value.inspect}"
     end
   end

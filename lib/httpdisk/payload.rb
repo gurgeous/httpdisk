@@ -12,7 +12,7 @@ module HTTPDisk
 
           # headers
           while (line = f.gets.chomp) && !line.empty?
-            key, value = line.split(': ', 2)
+            key, value = line.split(": ", 2)
             p.headers[key] = value
           end
 
@@ -34,8 +34,8 @@ module HTTPDisk
     attr_accessor :body, :comment, :headers, :reason_phrase, :status
 
     def initialize
-      @body = ''
-      @comment = ''
+      @body = ""
+      @comment = ""
       @headers = Faraday::Utils::Headers.new
     end
 
