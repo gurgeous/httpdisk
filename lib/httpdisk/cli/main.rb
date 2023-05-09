@@ -1,5 +1,5 @@
 require 'faraday-cookie_jar'
-require 'faraday_middleware'
+require 'faraday/follow_redirects'
 require 'ostruct'
 
 module HTTPDisk
