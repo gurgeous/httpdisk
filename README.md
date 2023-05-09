@@ -187,7 +187,7 @@ An alternative is to use [ripgrep-all](https://github.com/phiresky/ripgrep-all) 
 
 #### 1.0
 
-- support faraday 2, minimum Ruby is 3.0 now
+- support faraday 2, minimum Ruby is 3.1 now
 - moved to Justfile and Standard
 
 #### 0.5
