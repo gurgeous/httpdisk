@@ -4,23 +4,23 @@
 # Main bin. Most of the interesting stuff is in HTTPDisk, for ease of testing.
 #
 
-$LOAD_PATH.unshift(File.join(__dir__, '../lib'))
+$LOAD_PATH.unshift(File.join(__dir__, "../lib"))
 
 BIN = File.basename($PROGRAM_NAME)
 
 def puts_error(s)
-  $stderr.puts "#{BIN}: #{s}"
+  warn "#{BIN}: #{s}"
 end
 
 #
 # Load the bare minimum and parse args with slop. We do this separately for speed.
 #
 
-require 'httpdisk/cli/args'
+require "httpdisk/cli/args"
 begin
   slop = HTTPDisk::Cli::Args.slop(ARGV)
 rescue Slop::Error => e
-  puts_error(e) if e.message != ''
+  puts_error(e) if e.message != ""
   puts_error("try '#{BIN} --help' for more information")
   exit 1
 end
@@ -29,15 +29,15 @@ end
 # now load everything and run
 #
 
-require 'httpdisk'
+require "httpdisk"
 main = HTTPDisk::Cli::Main.new(slop)
 begin
   main.run
-rescue StandardError => e
+rescue => e
   puts_error(e) if !main.options[:silent]
-  if ENV['HTTPDISK_DEBUG']
+  if ENV["HTTPDISK_DEBUG"]
     $stderr.puts
-    $stderr.puts e.backtrace.join("\n")
+    warn e.backtrace.join("\n")
   end
   exit 1
 end

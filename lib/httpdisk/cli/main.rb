@@ -1,6 +1,6 @@
-require 'faraday-cookie_jar'
-require 'faraday/follow_redirects'
-require 'ostruct'
+require "faraday-cookie_jar"
+require "faraday/follow_redirects"
+require "ostruct"
 
 module HTTPDisk
   module Cli
@@ -31,7 +31,7 @@ module HTTPDisk
 
         # output
         if options[:output]
-          File.open(options[:output], 'w') { output(response, _1) }
+          File.open(options[:output], "w") { output(response, _1) }
         else
           output(response, $stdout)
         end
@@ -59,7 +59,7 @@ module HTTPDisk
               max: options[:retry],
               methods: %w[delete get head options patch post put trace],
               retry_statuses: (500..600).to_a,
-              retry_if: ->(_env, _err) { true },
+              retry_if: ->(_env, _err) { true }
             }
             _1.request :retry, retry_options
           end
@@ -103,9 +103,9 @@ module HTTPDisk
         method = if options[:request]
           options[:request]
         elsif options[:data]
-          'post'
+          "post"
         end
-        method ||= 'get'
+        method ||= "get"
         method = method.downcase.to_sym
 
         if !Faraday::Connection::METHODS.include?(method)
@@ -119,9 +119,9 @@ module HTTPDisk
       def request_url
         url = options[:url]
         # recover from missing http:
-        if url !~ %r{^https?://}i
-          if url =~ %r{^\w+://}
-            raise CliError, 'only http/https supported'
+        if !%r{^https?://}i.match?(url)
+          if %r{^\w+://}.match?(url)
+            raise CliError, "only http/https supported"
           end
 
           url = "http://#{url}"
@@ -140,11 +140,11 @@ module HTTPDisk
       def request_headers
         {}.tap do |headers|
           if options[:user_agent]
-            headers['User-Agent'] = options[:user_agent]
+            headers["User-Agent"] = options[:user_agent]
           end
 
           options[:header].each do |header|
-            key, value = header.split(': ', 2)
+            key, value = header.split(": ", 2)
             if !key || !value || key.empty? || value.empty?
               raise CliError, "invalid --header #{header.inspect}"
             end

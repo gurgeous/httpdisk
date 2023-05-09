@@ -1,6 +1,6 @@
-require 'content-type'
-require 'faraday'
-require 'logger'
+require "content-type"
+require "faraday"
+require "logger"
 
 module HTTPDisk
   # Middleware and main entry point.
@@ -9,7 +9,7 @@ module HTTPDisk
 
     def initialize(app, options = {})
       options = Sloptions.parse(options) do
-        _1.string :dir, default: File.join(ENV['HOME'], 'httpdisk')
+        _1.string :dir, default: File.join(ENV["HOME"], "httpdisk")
         _1.integer :expires
         _1.boolean :force
         _1.boolean :force_errors
@@ -23,12 +23,12 @@ module HTTPDisk
     end
 
     def call(env)
-      cache_key = CacheKey.new(env, ignore_params: ignore_params)
+      cache_key = CacheKey.new(env, ignore_params:)
       logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
       env[:httpdisk_diskpath] = cache.diskpath(cache_key)
 
       # check cache, fallback to network
-      if response = read(cache_key, env)
+      if (response = read(cache_key, env))
         response.env[:httpdisk] = true
       else
         response = perform(env)
@@ -48,7 +48,7 @@ module HTTPDisk
         status: cache.status(cache_key).to_s,
         key: cache_key.key,
         digest: cache_key.digest,
-        path: cache.diskpath(cache_key),
+        path: cache.diskpath(cache_key)
       }
     end
 
@@ -90,7 +90,7 @@ module HTTPDisk
     def stuff_999_response(env, err)
       env.tap do
         _1.reason_phrase = "#{err.class} #{err.message}"
-        _1.response_body = ''
+        _1.response_body = ""
         _1.response_headers = Faraday::Utils::Headers.new
         _1.status = HTTPDisk::ERROR_STATUS
       end
@@ -110,11 +110,11 @@ module HTTPDisk
     # network. Not all adapters honor Content-Type (including the default
     # adapter).
     def encode_body(response)
-      body = response.body || ''
+      body = response.body || ""
 
       # parse Content-Type
       begin
-        content_type = response['Content-Type'] && ContentType.parse(response['Content-Type'])
+        content_type = response["Content-Type"] && ContentType.parse(response["Content-Type"])
       rescue Parslet::ParseFailed
         # unparsable
       end
@@ -130,7 +130,7 @@ module HTTPDisk
       if options[:utf8] && content_type && response_text?(content_type)
         body = body.dup if body.frozen?
         begin
-          body.encode!('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+          body.encode!("UTF-8", invalid: :replace, undef: :replace, replace: "?")
         rescue Encoding::ConverterNotFoundError
           # rare, can't do anything here
           body = "httpdisk could not convert from #{body.encoding.name} to UTF-8"
@@ -152,7 +152,7 @@ module HTTPDisk
     end
 
     def response_text?(content_type)
-      content_type.type == 'text' || content_type.mime_type == 'application/json'
+      content_type.type == "text" || content_type.mime_type == "application/json"
     end
 
     #

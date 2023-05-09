@@ -1,4 +1,4 @@
-require_relative 'test_helper'
+require_relative "test_helper"
 
 class TestCache < MiniTest::Test
   def setup
@@ -9,10 +9,10 @@ class TestCache < MiniTest::Test
 
   def test_invalid
     # not found
-    assert_nil @cache.read(ck('http://notfound'))
+    assert_nil @cache.read(ck("http://notfound"))
 
     # stale
-    ck = ck('http://stale')
+    ck = ck("http://stale")
     path = @cache.diskpath(ck)
     FileUtils.mkdir_p(File.dirname(path))
     FileUtils.touch(path, mtime: Time.now - 999)
@@ -20,10 +20,10 @@ class TestCache < MiniTest::Test
   end
 
   def test_roundtrip
-    ck = ck('http://hello')
+    ck = ck("http://hello")
 
     # write
-    write_payload = payload(headers: { HELLO: 'wor:ld', name: 'john' })
+    write_payload = payload(headers: {HELLO: "wor:ld", name: "john"})
     @cache.write(ck, write_payload)
 
     # read
@@ -37,7 +37,7 @@ class TestCache < MiniTest::Test
 
   def test_status
     seq = lambda do
-      ck = ck('http://seq')
+      ck = ck("http://seq")
       [].tap do |results|
         # no file
         FileUtils.rm_f(@cache.diskpath(ck))
@@ -75,8 +75,8 @@ class TestCache < MiniTest::Test
   end
 
   def test_delete
-    ck = ck('http://hello')
-    @cache.write(ck, payload(body: 'hi'))
+    ck = ck("http://hello")
+    @cache.write(ck, payload(body: "hi"))
     assert_equal :hit, @cache.status(ck)
     @cache.delete(ck)
     assert_equal :miss, @cache.status(ck)
@@ -84,11 +84,11 @@ class TestCache < MiniTest::Test
 
   def test_bad_header_encoding
     # response headers are supposed to be ascii, but that isn't always the case
-    ck = ck('http://hello')
+    ck = ck("http://hello")
 
     # write
-    cafe = 'café'.encode('ISO-8859-1')
-    write_payload = payload(headers: { cafe: cafe })
+    cafe = "café".encode("ISO-8859-1")
+    write_payload = payload(headers: {cafe:})
     @cache.write(ck, write_payload)
 
     # read
