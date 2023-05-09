@@ -43,10 +43,10 @@ gem-push: check-git-status
   @just banner gem build...
   gem build httpdisk.gemspec
   @just banner tag...
-  #git tag -a "v{{gemver}}" -m "Tagging {{gemver}}"
-  #git push --tags
+  git tag -a "v{{gemver}}" -m "Tagging {{gemver}}"
+  git push --tags
   @just banner gem push...
-  #gem push "httpdisk-{{gemver}}.gem"
+  gem push "httpdisk-{{gemver}}.gem"
 
 #
 # util

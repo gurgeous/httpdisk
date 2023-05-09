@@ -5,6 +5,7 @@ PATH
       content-type (~> 0.0)
       faraday (~> 2.7)
       faraday-cookie_jar (~> 0.0)
+      faraday-follow_redirects (~> 0.0)
       slop (~> 4.10)
 
 GEM
@@ -85,7 +86,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  faraday-follow_redirects
   httpdisk!
   minitest
   mocha
