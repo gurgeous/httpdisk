@@ -28,6 +28,14 @@ watch:
   @watchexec --watch lib --watch test --clear bundle exec rake test
 
 #
+# ci
+#
+
+ci:
+  bundle install
+  just check
+
+#
 # gem tasks
 #
 
