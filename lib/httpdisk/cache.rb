@@ -10,13 +10,14 @@ module HTTPDisk
       @options = options
     end
 
-    %i[dir expires force force_errors].each do |method|
+    %i[dir expires force force_errors plain].each do |method|
       define_method(method) do
         options[method]
       end
     end
     alias_method :force?, :force
     alias_method :force_errors?, :force_errors
+    alias_method :plain?, :plain
 
     # Get cached response. If there is a cached error it will be raised.
     def read(cache_key)
@@ -42,9 +43,13 @@ module HTTPDisk
       # required for *nix systems, but I've heard rumors it's helpful for
       # Windows.
       Tempfile.new(binmode: true).tap do |tmp|
-        Zlib::GzipWriter.new(tmp).tap do |gzip|
-          payload.write(gzip)
-          gzip.close
+        if plain?
+          payload.write(tmp)
+        else
+          Zlib::GzipWriter.new(tmp).tap do |gzip|
+            payload.write(gzip)
+            gzip.close
+          end
         end
         tmp.close
         FileUtils.mv(tmp.path, path)
@@ -64,6 +69,8 @@ module HTTPDisk
 
     protected
 
+    GZIP_MAGIC_NUMBER = [0x1F ,0x8B, 0x08]
+
     # low level read, returns payload or status
     def read0(cache_key, peek: false)
       path = diskpath(cache_key)
@@ -73,8 +80,15 @@ module HTTPDisk
       return :force if force?
 
       begin
-        payload = Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") do
-          Payload.read(_1, peek:)
+        payload = File.open(path, encoding: "ASCII-8BIT") do |file|
+          # is it gzipped?
+          if file.read(3).bytes.tap { file.rewind } == GZIP_MAGIC_NUMBER
+            Zlib::GzipReader.wrap(file, encoding: "ASCII-8BIT") do |gz|
+              Payload.read(gz, peek:)
+            end
+          else
+            Payload.read(file, peek:)
+          end
         end
       rescue => e
         raise "#{path}: #{e}"

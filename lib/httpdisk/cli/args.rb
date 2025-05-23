@@ -31,6 +31,7 @@ module HTTPDisk
           o.duration "--expires", "when to expire cached requests (ex: 1h, 2d, 3w)"
           o.boolean "--force", "don't read anything from cache (but still write)"
           o.boolean "--force-errors", "don't read errors from cache (but still write)"
+          o.boolean "--plain", "don't gzip when writing to cache"
           o.boolean "--status", "show status for a url in the cache"
 
           # generic

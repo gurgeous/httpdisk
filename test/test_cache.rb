@@ -95,4 +95,19 @@ class TestCache < Minitest::Test
     read_payload = @cache.read(ck)
     assert_equal cafe.b, read_payload.headers[:cafe]
   end
+
+  def test_plain
+    ck = ck("http://hello")
+    cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60, plain: true)
+
+    # write
+    write_payload = payload(body: "cafe")
+    cache.write(ck, write_payload)
+
+    # should be identical
+    read_payload = cache.read(ck)
+    %i[body comment headers reason_phrase status].each do
+      assert_equal write_payload.send(_1), read_payload.send(_1)
+    end
+  end
 end

@@ -15,6 +15,7 @@ module HTTPDisk
         _1.boolean :force_errors
         _1.array :ignore_params, default: []
         _1.on :logger, type: [:boolean, Logger]
+        _1.boolean :plain
         _1.boolean :utf8
       end
 
