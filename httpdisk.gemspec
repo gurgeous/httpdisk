@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # gem dependencies
-  s.add_dependency "base64", "~> 0.1" # required for 3.4
+  s.add_dependency "base64", "~> 0.2" # required for 3.4
   s.add_dependency "content-type", "~> 0.0"
   s.add_dependency "faraday", "~> 2.13"
   s.add_dependency "faraday-cookie_jar", "~> 0.0"

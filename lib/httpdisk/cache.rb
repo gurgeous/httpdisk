@@ -69,7 +69,7 @@ module HTTPDisk
 
     protected
 
-    GZIP_MAGIC_NUMBER = [0x1F ,0x8B, 0x08]
+    GZIP_MAGIC_NUMBER = [0x1F, 0x8B, 0x08]
 
     # low level read, returns payload or status
     def read0(cache_key, peek: false)

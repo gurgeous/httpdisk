@@ -19,7 +19,7 @@ module HTTPDisk
       #
 
       def grep_color
-        @grep_color ||= (ENV["GREP_COLOR"] || GREP_COLOR)
+        @grep_color ||= ENV["GREP_COLOR"] || GREP_COLOR
       end
 
       def print_matches(matches)

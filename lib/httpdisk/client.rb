@@ -19,7 +19,7 @@ module HTTPDisk
         _1.boolean :utf8
       end
 
-      super(app, options)
+      super
       @cache = Cache.new(options)
     end
 

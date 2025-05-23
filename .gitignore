@@ -1,6 +1,3 @@
-.ruby-version
-.vscode
 *.gem
-
-# gems don't need to include this since the gemspec is enough
+.tool-versions
 Gemfile.lock
