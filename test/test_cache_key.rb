@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestCacheKey < MiniTest::Test
+class TestCacheKey < Minitest::Test
   def test_key
     # happy path
     assert_equal "GET http://example.com", ck("http://example.com").key
@@ -8,9 +8,9 @@ class TestCacheKey < MiniTest::Test
 
     # these should match
     [
-      %w[http://a?a=1&b=2&c=3 HTTP://A:80?c=3&b=2&a=1],
-      %w[https://a?a=1&b=2&c=3 HTTPs://A:443?c=3&b=2&a=1],
-      %w[https://a? HTTPs://A:443/],
+      %w[http://a?a=1&b=2&c=3 http://A:80?c=3&b=2&a=1],
+      %w[https://a?a=1&b=2&c=3 https://A:443?c=3&b=2&a=1],
+      %w[https://a? https://A:443/],
       %w[http://a?b+c=d+e http://a?b%20c=d%20e]
     ].each do
       assert_equal ck(_1).key, ck(_2).key

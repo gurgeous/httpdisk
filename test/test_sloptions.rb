@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestOptions < MiniTest::Test
+class TestOptions < Minitest::Test
   def test_empty
     HTTPDisk::Sloptions.parse({}) { _1.string :x }
   end

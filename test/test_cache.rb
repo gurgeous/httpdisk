@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestCache < MiniTest::Test
+class TestCache < Minitest::Test
   def setup
     super
 

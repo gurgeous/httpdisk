@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 # utf8 issue?
 
-class TestGrep < MiniTest::Test
+class TestGrep < Minitest::Test
   def setup
     super
 

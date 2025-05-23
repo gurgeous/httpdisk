@@ -80,7 +80,7 @@ module HTTPDisk
               nil
             end
             if encoding && body.encoding != encoding
-              body.force_encoding(encoding)
+              body = body.dup.force_encoding(encoding)
             end
           end
 

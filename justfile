@@ -24,8 +24,8 @@ test:
   @just banner test...
   bundle exec rake test
 
-watch:
-  @watchexec --watch lib --watch test --clear bundle exec rake test
+test-watch:
+  @watchexec --clear=clear bundle exec rake test
 
 #
 # ci

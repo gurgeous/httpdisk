@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSlopDuration < MiniTest::Test
+class TestSlopDuration < Minitest::Test
   def test_duration
     option = Slop::DurationOption.new(nil, nil)
 

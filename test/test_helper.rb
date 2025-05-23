@@ -5,7 +5,7 @@ require "minitest/pride"
 require "mocha/minitest"
 require "webmock/minitest"
 
-module MiniTest
+module Minitest
   class Test
     def setup
       @tmpdir = Dir.mktmpdir("httpdisk")

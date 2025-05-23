@@ -122,8 +122,7 @@ module HTTPDisk
       # look at charset and set body encoding if necessary
       encoding = encoding_for(content_type)
       if body.encoding != encoding
-        body = body.dup if body.frozen?
-        body.force_encoding(encoding)
+        body = body.dup.force_encoding(encoding)
       end
 
       # if :utf8, force body to UTF-8

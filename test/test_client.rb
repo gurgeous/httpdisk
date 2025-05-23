@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestClient < MiniTest::Test
+class TestClient < Minitest::Test
   CAFE = "café".encode("ISO-8859-1")
 
   def setup
@@ -118,7 +118,7 @@ class TestClient < MiniTest::Test
     # Content-Type: UTF-7 (can't convert to UTF-8)
     stub_request(:get, "utf7").to_return(
       headers: {"Content-Type" => "text/html; charset=UTF-7"},
-      body: "hello".force_encoding("UTF-7")
+      body: "hello".dup.force_encoding("UTF-7")
     )
     r1, r2 = (1..2).map { faraday.get("http://utf7") }
     [r1, r2].each do
