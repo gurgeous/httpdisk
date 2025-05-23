@@ -51,7 +51,7 @@ class Examples
         methods: %w[delete get head options patch post put trace],
         retry_statuses: (400..600).to_a,
         retry_if: ->(_env, _err) { true }
-      }.freeze
+      }
       _1.request :retry, retry_options
     end
 
@@ -100,7 +100,7 @@ class Examples
         methods: %w[delete get head options patch post put trace],
         retry_statuses: (400..600).to_a,
         retry_if: ->(_env, _err) { true }
-      }.freeze
+      }
       _1.request :retry, retry_options
     end
 

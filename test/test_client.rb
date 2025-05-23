@@ -1,7 +1,7 @@
 require_relative "test_helper"
 
 class TestClient < MiniTest::Test
-  CAFE = "café".encode("ISO-8859-1").freeze
+  CAFE = "café".encode("ISO-8859-1")
 
   def setup
     super

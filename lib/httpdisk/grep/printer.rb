@@ -1,7 +1,7 @@
 module HTTPDisk
   module Grep
     class Printer
-      GREP_COLOR = "37;45".freeze
+      GREP_COLOR = "37;45"
 
       attr_reader :output
 

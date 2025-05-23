@@ -11,7 +11,7 @@ module Slop
       d: 24 * 60 * 60,
       w: 7 * 24 * 60 * 60,
       y: 365 * 7 * 24 * 60 * 60
-    }.freeze
+    }
 
     def call(value)
       m = value.match(/^(\d+)([smhdwy])?$/)

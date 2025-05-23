@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = "httpdisk works with faraday to aggressively cache responses on disk."
   s.homepage = "http://github.com/gurgeous/httpdisk"
   s.license = "MIT"
-  s.required_ruby_version = ">= 3.1.0"
+  s.required_ruby_version = ">= 3.2.0"
   s.metadata["rubygems_mfa_required"] = "true"
 
   # what's in the gem?
@@ -22,9 +22,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # gem dependencies
+  s.add_dependency "base64", "~> 0.1" # required for 3.4
   s.add_dependency "content-type", "~> 0.0"
-  s.add_dependency "faraday", "~> 2.7"
+  s.add_dependency "faraday", "~> 2.13"
   s.add_dependency "faraday-cookie_jar", "~> 0.0"
-  s.add_dependency "faraday-follow_redirects", "~> 0.0"
+  s.add_dependency "faraday-follow_redirects", "~> 0.3"
+  s.add_dependency "ostruct", "~> 0.6" # required for 3.5
   s.add_dependency "slop", "~> 4.10"
 end
