@@ -7,4 +7,7 @@ postinstall = ['bundle install']
 [tools]
 just = "latest"
 ruby = "3.4"
-watchexec = "latest"
+
+[settings]
+# required for postinstall hook
+experimental = true
