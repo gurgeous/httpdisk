@@ -22,13 +22,6 @@ test:
 test-watch:
   watchexec --stop-timeout=0 --clear=clear just test
 
-#
-# ci
-#
-
-ci:
-  bundle install
-  just check
 
 #
 # gem tasks

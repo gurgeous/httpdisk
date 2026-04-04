@@ -50,7 +50,7 @@ class Examples
       retry_options = {
         methods: %w[delete get head options patch post put trace],
         retry_statuses: (400..600).to_a,
-        retry_if: ->(_env, _err) { true }
+        retry_if: ->(_env, _err) { true },
       }
       _1.request :retry, retry_options
     end
@@ -99,7 +99,7 @@ class Examples
       retry_options = {
         methods: %w[delete get head options patch post put trace],
         retry_statuses: (400..600).to_a,
-        retry_if: ->(_env, _err) { true }
+        retry_if: ->(_env, _err) { true },
       }
       _1.request :retry, retry_options
     end

@@ -4,51 +4,82 @@ require "uri"
 
 module HTTPDisk
   class CacheKey
-    attr_accesor :env, :ignore_params, :http_method, :scheme, :host, :port, :path, :query, :body
+    PARTS = %i[http_method scheme host port path query body].freeze
+
+    attr_accessor :env, :ignore_params
+    attr_reader(*PARTS)
 
     def initialize(env, ignore_params: [])
       @env, @ignore_params = env, ignore_params
 
-      # sanity checks
-      raise InvalidUrl, "http/https required #{env.url.inspect}" if !/^https?$/.match?(env.url.scheme)
-      raise InvalidUrl, "hostname required #{env.url.inspect}" if !env.url.host
-
-      # this is our default key - the user can override, though
-      @http_method = env.method.upcase
+      # setup defaults, user can override
+      @http_method = env.method
       @scheme = url.scheme
-      @host = url.host.downcase
+      @host = url.host
       @port = default_port? ? nil : url.port
       @path = (url.path == "/") ? nil : url.path
-      @query = canonical_query(url.query)
+      @query = url.query
       @body = env.request_body ? bodykey : nil
+
+      # sanity checks
+      raise InvalidUrl, "http/https required #{env.url.inspect}" if !/^https?$/.match?(scheme)
+      raise InvalidUrl, "hostname required #{env.url.inspect}" if !host
     end
 
     def query_params
-      return {} if blank?(@query)
+      return {} if blank?(query)
 
-      CGI.parse(@query).transform_values do
+      CGI.parse(query).transform_values do
         (_1.length == 1) ? _1.first : _1
       end
     end
 
-    # Calculate cache key from normalized parts
-    def key
+    # one-liners
+    def blank?(value) = value.nil? || value == ""
+    def default_port? = url.default_port == url.port
+    def digest = @digest ||= Digest::MD5.hexdigest(key)
+    def diskpath = @diskpath ||= File.join(hostdir, digest[0, 3], digest[3..])
+    def invalidate! = @digest = @key = @diskpath = nil
+    def key = @key ||= key0
+    def to_s = key
+    def url = env.url
+
+    def query_params=(value)
+      self.query = URI.encode_www_form(flatten_query_params(value))
+    end
+
+    # the parts that feed into `key` invalidate memoized stuff
+    PARTS.each do |part|
+      define_method("#{part}=") do |value|
+        invalidate!
+        instance_variable_set(:"@#{part}", value)
+      end
+    end
+
+    protected
+
+    def key0
       key = []
-      key << http_method
+      key << http_method.to_s.upcase
       key << " "
-      key << scheme
+      key << scheme.to_s
       key << "://"
-      key << host
+      key << host.downcase
       if port
         key << ":"
         key << port
       end
-      if path
+      if (path = (blank?(self.path) || self.path == "/") ? nil : self.path)
         key << path
       end
-      if query
+      if (query = canonical_query(self.query))
         key << "?"
         key << query
+      end
+      body = if env.request_headers["Content-Type"] == "application/x-www-form-urlencoded"
+        canonical_query(self.body)
+      else
+        self.body
       end
       if body
         key << " "
@@ -56,22 +87,6 @@ module HTTPDisk
       end
       key.join
     end
-
-    # one-liners
-    def blank?(value) = value.nil? || value == ""
-    def default_port? = url.default_port == url.port
-    def digest = Digest::MD5.hexdigest(key)
-    def diskpath = File.join(hostdir, digest[0, 3], digest.drop(3))
-    def host=(value) = @host = value&.downcase
-    def http_method=(value) = @http_method = value.to_s.upcase
-    def path=(value) = @path = (blank?(value) || value == "/") ? nil : value
-    def query=(value) = @query = canonical_query(value)
-    def query_params=(value) = self.query = URI.encode_www_form(flatten_query_params(value))
-    def scheme=(value) = @scheme = value&.to_s
-    def to_s = key
-    def url = env.url
-
-    protected
 
     # Calculate cache key segment for body
     def bodykey

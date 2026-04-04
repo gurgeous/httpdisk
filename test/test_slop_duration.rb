@@ -12,7 +12,7 @@ class TestSlopDuration < Minitest::Test
       "1h": (60 * 60),
       "1d": (24 * 60 * 60),
       "1w": (7 * 24 * 60 * 60),
-      "1y": (365 * 7 * 24 * 60 * 60)
+      "1y": (365 * 7 * 24 * 60 * 60),
     }.each do
       assert_equal _2, option.call(_1.to_s)
     end

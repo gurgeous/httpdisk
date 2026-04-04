@@ -49,7 +49,7 @@ module HTTPDisk
         status: cache.status(cache_key).to_s,
         key: cache_key.key,
         digest: cache_key.digest,
-        path: cache.diskpath(cache_key)
+        path: cache.diskpath(cache_key),
       }
     end
 

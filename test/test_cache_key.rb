@@ -11,7 +11,7 @@ class TestCacheKey < Minitest::Test
       %w[http://a?a=1&b=2&c=3 http://A:80?c=3&b=2&a=1],
       %w[https://a?a=1&b=2&c=3 https://A:443?c=3&b=2&a=1],
       %w[https://a? https://A:443/],
-      %w[http://a?b+c=d+e http://a?b%20c=d%20e]
+      %w[http://a?b+c=d+e http://a?b%20c=d%20e],
     ].each do
       assert_equal ck(_1).key, ck(_2).key
     end
@@ -26,7 +26,7 @@ class TestCacheKey < Minitest::Test
     [
       "",
       "file://localhost/fileurl",
-      "https:///nohost"
+      "https:///nohost",
     ].each do
       assert_raises { ck(_1).key }
     end

@@ -134,7 +134,7 @@ class TestClient < Minitest::Test
       Errno::EHOSTUNREACH,
       OpenSSL::SSL::SSLError,
       SocketError,
-      Timeout::Error].each do |error|
+      Timeout::Error,].each do |error|
       url = "http://raise_#{error.to_s.gsub(/:+/, "_").downcase}"
       stub_request(:any, url).to_raise(error)
       r1, r2 = (1..2).map { @faraday.get(url) }

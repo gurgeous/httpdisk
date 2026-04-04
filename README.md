@@ -132,7 +132,7 @@ httpdisk supports a few options:
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
 - `ignore_params:` array of query params to ignore when calculating cache_key
-- `key_transform:` proc that can mutate the `HTTPDisk::CacheKey` before lookup/write
+- `key_transform:` proc that can mutate the `HTTPDisk::CacheKey`
 - `logger`: log requests to stderr, or pass your own logger
 - `utf8`: if true, force text response bodies to valid UTF-8
 
@@ -141,18 +141,6 @@ Pass these in when setting up Faraday:
 ```ruby
 faraday = Faraday.new do
   _1.use :httpdisk, expires: 7*24*60*60, force: true
-end
-```
-
-You can also customize cache keys for specific requests:
-
-```ruby
-faraday = Faraday.new do
-  _1.use :httpdisk, key_transform: lambda { |cache_key|
-    next if cache_key.host != "api.github.com" || cache_key.path != "/repos/me/project/commits"
-
-    cache_key.query_params = cache_key.query_params.merge("since" => "last_90_days")
-  }
 end
 ```
 
