@@ -22,6 +22,8 @@ jobs:
         with:
           experimental: true # required for post-install and binary rubies
           mise_toml: |
+            [hooks]
+            postinstall = ['bundle install']
             [tools]
             just = "latest"
             ruby = "${{ matrix.ruby-version }}"
