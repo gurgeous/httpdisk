@@ -186,6 +186,12 @@ An alternative is to use [ripgrep-all](https://github.com/phiresky/ripgrep-all) 
 
 ## Changelog
 
+#### 1.0.1 (unreleased)
+
+- added key_transform for cache key customization
+- moved to Mise
+- deps
+
 #### 1.0
 
 - support faraday 2, minimum Ruby is 3.1 now
