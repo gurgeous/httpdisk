@@ -11,7 +11,7 @@ class TestCacheKey < Minitest::Test
       %w[http://a?a=1&b=2&c=3 http://A:80?c=3&b=2&a=1],
       %w[https://a?a=1&b=2&c=3 https://A:443?c=3&b=2&a=1],
       %w[https://a? https://A:443/],
-      %w[http://a?b+c=d+e http://a?b%20c=d%20e]
+      %w[http://a?b+c=d+e http://a?b%20c=d%20e],
     ].each do
       assert_equal ck(_1).key, ck(_2).key
     end
@@ -26,7 +26,7 @@ class TestCacheKey < Minitest::Test
     [
       "",
       "file://localhost/fileurl",
-      "https:///nohost"
+      "https:///nohost",
     ].each do
       assert_raises { ck(_1).key }
     end
@@ -76,5 +76,24 @@ class TestCacheKey < Minitest::Test
     ].each do
       assert_equal "GET http://example.com?a=1&c=3", ck(_1, ignore_params: %w[b]).key
     end
+  end
+
+  def test_mutation
+    cache_key = ck("https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-01")
+    cache_key.query_params = cache_key.query_params.merge("since" => "last_90_days")
+    cache_key.path = "/repos/me/project/commits/last_90_days"
+
+    assert_equal "GET https://api.github.com/repos/me/project/commits/last_90_days?per_page=100&since=last_90_days", cache_key.key
+  end
+
+  def test_mutation_updates_digest_and_diskpath
+    cache_key = ck("http://example.com?a=1")
+    digest = cache_key.digest
+    diskpath = cache_key.diskpath
+
+    cache_key.query = "a=2"
+
+    refute_equal digest, cache_key.digest
+    refute_equal diskpath, cache_key.diskpath
   end
 end

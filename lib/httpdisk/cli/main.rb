@@ -59,7 +59,7 @@ module HTTPDisk
               max: options[:retry],
               methods: %w[delete get head options patch post put trace],
               retry_statuses: (500..600).to_a,
-              retry_if: ->(_env, _err) { true }
+              retry_if: ->(_env, _err) { true },
             }
             _1.request :retry, retry_options
           end

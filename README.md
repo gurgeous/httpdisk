@@ -132,6 +132,7 @@ httpdisk supports a few options:
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
 - `ignore_params:` array of query params to ignore when calculating cache_key
+- `key_transform:` proc that can mutate the `HTTPDisk::CacheKey`
 - `logger`: log requests to stderr, or pass your own logger
 - `utf8`: if true, force text response bodies to valid UTF-8
 
@@ -184,6 +185,12 @@ An alternative is to use [ripgrep-all](https://github.com/phiresky/ripgrep-all) 
 - httpdisk does not work with Faraday's parallel mode or `on_complete`.
 
 ## Changelog
+
+#### 1.0.1 (unreleased)
+
+- added key_transform for cache key customization
+- moved to Mise
+- deps
 
 #### 1.0
 

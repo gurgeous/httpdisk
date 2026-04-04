@@ -134,7 +134,7 @@ class TestClient < Minitest::Test
       Errno::EHOSTUNREACH,
       OpenSSL::SSL::SSLError,
       SocketError,
-      Timeout::Error].each do |error|
+      Timeout::Error,].each do |error|
       url = "http://raise_#{error.to_s.gsub(/:+/, "_").downcase}"
       stub_request(:any, url).to_raise(error)
       r1, r2 = (1..2).map { @faraday.get(url) }
@@ -159,6 +159,42 @@ class TestClient < Minitest::Test
     end
 
     assert_output("", /miss.*hit/m) { 2.times { faraday.get("http://httpbingo") } }
+  end
+
+  def test_option_key_transform
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, key_transform: lambda { |cache_key|
+        next if cache_key.host != "api.github.com" || cache_key.path != "/repos/me/project/commits"
+
+        cache_key.query_params = cache_key.query_params.merge("since" => "last_90_days")
+      }
+    end
+    stub_request(:get, "https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-01")
+      .to_return(body: '{"ok":1}')
+
+    r1 = faraday.get("https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-01")
+    r2 = faraday.get("https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-02")
+
+    assert !r1.env[:httpdisk]
+    assert r2.env[:httpdisk]
+    assert_requested(:get, "https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-01", times: 1)
+    assert_not_requested(:get, "https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-02")
+  end
+
+  def test_status_uses_key_transform
+    transform = lambda do |cache_key|
+      cache_key.query_params = cache_key.query_params.merge("since" => "last_90_days")
+    end
+    client = HTTPDisk::Client.new(nil, dir: @tmpdir, key_transform: transform)
+    env = Faraday::Env.new.tap do
+      _1.method = :get
+      _1.url = Faraday.new.build_url("https://api.github.com/repos/me/project/commits?since=2024-01-01")
+      _1.request_headers = {}
+    end
+
+    status = client.status(env)
+
+    assert_equal "GET https://api.github.com/repos/me/project/commits?since=last_90_days", status[:key]
   end
 
   protected

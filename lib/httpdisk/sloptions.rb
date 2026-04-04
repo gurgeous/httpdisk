@@ -70,9 +70,7 @@ module HTTPDisk
 
     protected
 
-    def defaults
-      flags.map { |flag, foptions| [flag, foptions[:default]] }.to_h.compact
-    end
+    def defaults = flags.transform_values { _1[:default] }.compact
 
     # does value match valid?
     def valid?(value, types)

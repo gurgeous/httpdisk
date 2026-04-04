@@ -29,7 +29,7 @@ class TestOptions < Minitest::Test
       {hash: {a: 1}},
       {integer: 4},
       {string: "hi"},
-      {symbol: :x}
+      {symbol: :x},
     ].each do |args|
       options.parse(args)
     end
@@ -41,7 +41,7 @@ class TestOptions < Minitest::Test
       {hash: "str"},
       {integer: "str"},
       {string: :bogus},
-      {symbol: "str"}
+      {symbol: "str"},
     ].each do |args|
       assert_raises(ArgumentError) { options.parse(args) }
     end

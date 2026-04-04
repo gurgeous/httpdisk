@@ -1,8 +1,11 @@
 name: test
 
 on:
-  push:
   pull_request:
+    paths-ignore: ["**.md"]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
   workflow_dispatch:
 
 jobs:
@@ -11,12 +14,17 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu, macos]
-        ruby-version: [head, 3.4, 3.2]
+        ruby-version: [4, 3.4, 3.2]
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: taiki-e/install-action@just
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v3
         with:
-          ruby-version: ${{ matrix.ruby-version }}
-      - run: just ci
+          experimental: true # required for post-install and binary rubies
+          mise_toml: |
+            [hooks]
+            postinstall = ['bundle install']
+            [tools]
+            just = "latest"
+            ruby = "${{ matrix.ruby-version }}"
+      - run: just check
