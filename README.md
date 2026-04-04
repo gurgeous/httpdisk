@@ -131,6 +131,7 @@ httpdisk supports a few options:
 - `expires:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)
+- `compress:` if false, write plain cache files instead of gzip
 - `ignore_params:` array of query params to ignore when calculating cache_key
 - `key_transform:` proc that can mutate the `HTTPDisk::CacheKey`
 - `logger`: log requests to stderr, or pass your own logger

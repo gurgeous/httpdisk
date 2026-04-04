@@ -35,6 +35,42 @@ class TestCache < Minitest::Test
     end
   end
 
+  def test_roundtrip_uncompressed
+    cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60, compress: false)
+    ck = ck("http://plain")
+    write_payload = payload(body: "café".encode("ISO-8859-1").b, headers: {"Content-Type" => "text/plain; charset=iso-8859-1"})
+
+    cache.write(ck, write_payload)
+
+    path = cache.diskpath(ck)
+    refute_equal "\x1f\x8b".b, File.binread(path, 2)
+
+    read_payload = cache.read(ck)
+    assert_equal write_payload.body, read_payload.body
+    assert_equal write_payload.headers, read_payload.headers
+  end
+
+  def test_read_plain_file_when_compress_enabled
+    ck = ck("http://plain")
+    path = @cache.diskpath(ck)
+    write_plain(path, payload(body: "plain\nbody".b, headers: {"X-Test" => "1"}))
+
+    read_payload = @cache.read(ck)
+    assert_equal "plain\nbody".b, read_payload.body
+    assert_equal "1", read_payload.headers["X-Test"]
+  end
+
+  def test_read_gzip_file_when_compress_disabled
+    cache = HTTPDisk::Cache.new(dir: @tmpdir, expires: 60, compress: false)
+    ck = ck("http://gzip")
+    path = cache.diskpath(ck)
+    write_gzip(path, payload(body: "gzip\nbody".b, headers: {"X-Test" => "1"}))
+
+    read_payload = cache.read(ck)
+    assert_equal "gzip\nbody".b, read_payload.body
+    assert_equal "1", read_payload.headers["X-Test"]
+  end
+
   def test_status
     seq = lambda do
       ck = ck("http://seq")
@@ -94,5 +130,19 @@ class TestCache < Minitest::Test
     # read
     read_payload = @cache.read(ck)
     assert_equal cafe.b, read_payload.headers[:cafe]
+  end
+
+  protected
+
+  def write_gzip(path, payload)
+    FileUtils.mkdir_p(File.dirname(path))
+    File.open(path, "wb") do |f|
+      Zlib::GzipWriter.wrap(f) { payload.write(_1) }
+    end
+  end
+
+  def write_plain(path, payload)
+    FileUtils.mkdir_p(File.dirname(path))
+    File.open(path, "wb") { payload.write(_1) }
   end
 end
