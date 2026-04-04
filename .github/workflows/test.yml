@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: jdx/mise-action@v3
         with:
-          mise_toml: |
+          .mise_toml: |
             [tools]
             ruby = "${{ matrix.ruby-version }}"
       - run: just check
