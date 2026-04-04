@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: jdx/mise-action@v3
+        experimental: true # required for post-install and binary rubies
         with:
           mise_toml: |
             [tools]
