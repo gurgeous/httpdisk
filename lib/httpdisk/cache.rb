@@ -1,8 +1,9 @@
 require "fileutils"
 require "tempfile"
+require "zlib"
 
 module HTTPDisk
-  # Disk cache for cache_keys => response. Files are compressed.
+  # Disk cache for cache_keys => response. Files may be compressed or plain.
   class Cache
     attr_reader :options
 
@@ -10,11 +11,12 @@ module HTTPDisk
       @options = options
     end
 
-    %i[dir expires force force_errors].each do |method|
+    %i[compress dir expires force force_errors].each do |method|
       define_method(method) do
         options[method]
       end
     end
+    alias_method :compress?, :compress
     alias_method :force?, :force
     alias_method :force_errors?, :force_errors
 
@@ -37,15 +39,11 @@ module HTTPDisk
       path = diskpath(cache_key)
       FileUtils.mkdir_p(File.dirname(path))
 
-      # Atomically write gzipped payload. Put our underlying Tempfile into
-      # binmode to avoid accidental newline conversion or string encoding. Not
-      # required for *nix systems, but I've heard rumors it's helpful for
-      # Windows.
+      # Atomically write payload. Put our underlying Tempfile into binmode to
+      # avoid accidental newline conversion or string encoding. Not required for
+      # *nix systems, but I've heard rumors it's helpful for Windows.
       Tempfile.new(binmode: true).tap do |tmp|
-        Zlib::GzipWriter.new(tmp).tap do |gzip|
-          payload.write(gzip)
-          gzip.close
-        end
+        write_payload(tmp, payload)
         tmp.close
         FileUtils.mv(tmp.path, path)
       end
@@ -73,9 +71,7 @@ module HTTPDisk
       return :force if force?
 
       begin
-        payload = Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") do
-          Payload.read(_1, peek:)
-        end
+        payload = read_payload(path, peek:)
       rescue => e
         raise "#{path}: #{e}"
       end
@@ -88,5 +84,27 @@ module HTTPDisk
     def expired?(path)
       expires && File.stat(path).mtime < Time.now - expires
     end
+
+    def read_payload(path, peek:)
+      if compressed?(path)
+        Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") { Payload.read(_1, peek:) }
+      else
+        File.open(path, "rb") { Payload.read(_1, peek:) }
+      end
+    end
+
+    def write_payload(tmp, payload)
+      if compress?
+        Zlib::GzipWriter.new(tmp).tap do |gzip|
+          payload.write(gzip)
+          gzip.close
+        end
+      else
+        payload.write(tmp)
+      end
+    end
+
+    # check got gz magic
+    def compressed?(path) = File.binread(path, 2) == "\x1f\x8b".b
   end
 end

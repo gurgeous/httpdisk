@@ -1,7 +1,7 @@
 require_relative "test_helper"
 
 class TestClient < Minitest::Test
-  CAFE = "café".encode("ISO-8859-1")
+  CAFE = "café".encode("ISO-8859-1").freeze
 
   def setup
     super
@@ -127,6 +127,22 @@ class TestClient < Minitest::Test
     end
   end
 
+  def test_content_type_option_utf8_with_compressed_cache
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, utf8: true, compress: true
+    end
+
+    assert_utf8_cached_response(faraday, "http://cafe-compressed", compressed: true)
+  end
+
+  def test_content_type_option_utf8_with_uncompressed_cache
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, utf8: true, compress: false
+    end
+
+    assert_utf8_cached_response(faraday, "http://cafe-plain", compressed: false)
+  end
+
   # these are the most common errors
   def test_errors
     [Errno::ECONNREFUSED,
@@ -151,6 +167,18 @@ class TestClient < Minitest::Test
 
     2.times { faraday.get("http://httpbingo") }
     assert_requested(:get, "http://httpbingo", times: 2)
+  end
+
+  def test_option_compress_false
+    faraday = Faraday.new do
+      _1.use :httpdisk, dir: @tmpdir, compress: false
+    end
+
+    response = faraday.get("http://httpbingo")
+    cache_key = HTTPDisk::CacheKey.new(response.env)
+    path = File.join(@tmpdir, cache_key.diskpath)
+
+    refute_equal "\x1f\x8b".b, File.binread(path, 2)
   end
 
   def test_option_logger
@@ -203,5 +231,25 @@ class TestClient < Minitest::Test
     %i[body headers reason_phrase status].each do
       assert_equal r1.send(_1), r2.send(_1)
     end
+  end
+
+  def assert_utf8_cached_response(faraday, url, compressed:)
+    stub_request(:get, url).to_return(
+      headers: {"Content-Type" => "text/html; charset=iso-8859-1"},
+      body: CAFE
+    )
+
+    r1, r2 = (1..2).map { faraday.get(url) }
+    [r1, r2].each do
+      assert_equal Encoding::UTF_8, _1.body.encoding
+      assert_equal "café", _1.body
+    end
+    assert !r1.env[:httpdisk]
+    assert r2.env[:httpdisk]
+
+    cache_key = HTTPDisk::CacheKey.new(r1.env)
+    path = File.join(@tmpdir, cache_key.diskpath)
+    magic = File.binread(path, 2)
+    compressed ? assert_equal("\x1f\x8b".b, magic) : refute_equal("\x1f\x8b".b, magic)
   end
 end

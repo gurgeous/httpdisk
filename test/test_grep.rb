@@ -75,7 +75,7 @@ class TestGrep < Minitest::Test
 
   def test_non_gzip
     IO.write(File.join(@tmpdir, "bad"), "")
-    assert_output(/not in gzip/) { grep("xyz").run }
+    assert_output(/not in httpdisk format/) { grep("xyz").run }
   end
 
   protected

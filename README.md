@@ -128,6 +128,7 @@ httpdisk will honor the `Content-Type` from responses. Unfortunately, it is enti
 httpdisk supports a few options:
 
 - `dir:` location for disk cache, defaults to `~/httpdisk`
+- `compress:` if false, write plain cache files instead of gzip
 - `expires:` when to expire cached requests, default is nil (never expire)
 - `force:` don't read anything from cache (but still write)
 - `force_errors:` don't read errors from cache (but still write)

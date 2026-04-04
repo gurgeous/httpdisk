@@ -26,15 +26,8 @@ module HTTPDisk
       end
 
       def run_one(path)
-        # read payload & body
-        begin
-          payload = Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") do
-            Payload.read(_1)
-          end
-        rescue Zlib::GzipFile::Error
-          puts "httpdisk: #{path} not in gzip format, skipping" if !options[:silent]
-          return
-        end
+        payload = read_payload(path)
+        return if !payload
 
         body = prepare_body(payload)
 
@@ -64,6 +57,17 @@ module HTTPDisk
         # strip default './'
         paths = paths.map { _1.gsub(%r{^\./}, "") } if options[:roots].empty?
         paths
+      end
+
+      def read_payload(path)
+        if HTTPDisk::Cache.new(compress: true).send(:compressed?, path)
+          Zlib::GzipReader.open(path, encoding: "ASCII-8BIT") { Payload.read(_1) }
+        else
+          File.open(path, "rb") { Payload.read(_1) }
+        end
+      rescue
+        puts "httpdisk: #{path} not in httpdisk format, skipping" if !options[:silent]
+        nil
       end
 
       # convert raw body into something palatable for pattern matching

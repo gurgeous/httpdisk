@@ -10,6 +10,7 @@ module HTTPDisk
     def initialize(app, options = {})
       options = Sloptions.parse(options) do
         _1.string :dir, default: File.join(ENV["HOME"], "httpdisk")
+        _1.boolean :compress, default: true
         _1.integer :expires
         _1.boolean :force
         _1.boolean :force_errors
