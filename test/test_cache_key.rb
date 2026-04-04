@@ -77,4 +77,23 @@ class TestCacheKey < Minitest::Test
       assert_equal "GET http://example.com?a=1&c=3", ck(_1, ignore_params: %w[b]).key
     end
   end
+
+  def test_mutation
+    cache_key = ck("https://api.github.com/repos/me/project/commits?per_page=100&since=2024-01-01")
+    cache_key.query_params = cache_key.query_params.merge("since" => "last_90_days")
+    cache_key.path = "/repos/me/project/commits/last_90_days"
+
+    assert_equal "GET https://api.github.com/repos/me/project/commits/last_90_days?per_page=100&since=last_90_days", cache_key.key
+  end
+
+  def test_mutation_updates_digest_and_diskpath
+    cache_key = ck("http://example.com?a=1")
+    digest = cache_key.digest
+    diskpath = cache_key.diskpath
+
+    cache_key.query = "a=2"
+
+    refute_equal digest, cache_key.digest
+    refute_equal diskpath, cache_key.diskpath
+  end
 end

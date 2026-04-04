@@ -4,7 +4,7 @@ require "uri"
 
 module HTTPDisk
   class CacheKey
-    attr_reader :env, :ignore_params
+    attr_accesor :env, :ignore_params, :http_method, :scheme, :host, :port, :path, :query, :body
 
     def initialize(env, ignore_params: [])
       @env, @ignore_params = env, ignore_params
@@ -12,64 +12,72 @@ module HTTPDisk
       # sanity checks
       raise InvalidUrl, "http/https required #{env.url.inspect}" if !/^https?$/.match?(env.url.scheme)
       raise InvalidUrl, "hostname required #{env.url.inspect}" if !env.url.host
+
+      # this is our default key - the user can override, though
+      @http_method = env.method.upcase
+      @scheme = url.scheme
+      @host = url.host.downcase
+      @port = default_port? ? nil : url.port
+      @path = (url.path == "/") ? nil : url.path
+      @query = canonical_query(url.query)
+      @body = env.request_body ? bodykey : nil
     end
 
-    def url
-      env.url
+    def query_params
+      return {} if blank?(@query)
+
+      CGI.parse(@query).transform_values do
+        (_1.length == 1) ? _1.first : _1
+      end
     end
 
-    # Cache key (memoized)
+    # Calculate cache key from normalized parts
     def key
-      @key ||= calculate_key
-    end
-
-    # md5(key) (memoized)
-    def digest
-      @digest ||= Digest::MD5.hexdigest(key)
-    end
-
-    # Relative path for this cache key based on hostdir & digest.
-    def diskpath
-      @diskpath ||= File.join(hostdir, digest[0, 3], digest[3..])
-    end
-
-    def to_s
-      key
-    end
-
-    protected
-
-    # Calculate cache key for url
-    def calculate_key
       key = []
-      key << env.method.upcase
+      key << http_method
       key << " "
-      key << url.scheme
+      key << scheme
       key << "://"
-      key << url.host.downcase
-      if !default_port?
+      key << host
+      if port
         key << ":"
-        key << url.port
+        key << port
       end
-      if url.path != "/"
-        key << url.path
+      if path
+        key << path
       end
-      if (q = url.query) && q != ""
+      if query
         key << "?"
-        key << querykey(q)
+        key << query
       end
-      if env.request_body
+      if body
         key << " "
-        key << bodykey
+        key << body
       end
       key.join
     end
+
+    # one-liners
+    def blank?(value) = value.nil? || value == ""
+    def default_port? = url.default_port == url.port
+    def digest = Digest::MD5.hexdigest(key)
+    def diskpath = File.join(hostdir, digest[0, 3], digest.drop(3))
+    def host=(value) = @host = value&.downcase
+    def http_method=(value) = @http_method = value.to_s.upcase
+    def path=(value) = @path = (blank?(value) || value == "/") ? nil : value
+    def query=(value) = @query = canonical_query(value)
+    def query_params=(value) = self.query = URI.encode_www_form(flatten_query_params(value))
+    def scheme=(value) = @scheme = value&.to_s
+    def to_s = key
+    def url = env.url
+
+    protected
 
     # Calculate cache key segment for body
     def bodykey
       body = env.request_body.to_s
       if env.request_headers["Content-Type"] == "application/x-www-form-urlencoded"
-        querykey(body)
+        canonical_query(body)
       elsif body.length < 50
         body
       else
@@ -77,32 +85,40 @@ module HTTPDisk
       end
     end
 
-    # Calculate canonical key for a query
-    def querykey(q)
+    def canonical_query(q)
+      return if blank?(q)
+
       parts = q.split("&").sort
       if !ignore_params.empty?
-        parts = parts.map do |part|
+        parts = parts.filter_map do |part|
           key, value = part.split("=", 2)
           next if ignore_params.include?(key)
 
           "#{key}=#{value}"
-        end.compact
+        end
       end
-      parts.join("&")
-    end
-
-    def default_port?
-      url.default_port == url.port
+      query = parts.join("&")
+      (query == "") ? nil : query
     end
 
     # Calculate nice directory name from url.host
     def hostdir
-      hostdir = url.host.downcase
+      hostdir = host.downcase
       hostdir = hostdir.gsub(/^www\./, "")
       hostdir = hostdir.gsub(/[^a-z0-9._-]/, "")
       hostdir = hostdir.squeeze(".")
       hostdir = "any" if hostdir.empty?
       hostdir
+    end
+
+    def flatten_query_params(value)
+      value.flat_map do |k, v|
+        if v.is_a?(Array)
+          v.map { [k, _1] }
+        else
+          [[k, v]]
+        end
+      end
     end
   end
 end

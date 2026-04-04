@@ -14,6 +14,7 @@ module HTTPDisk
         _1.boolean :force
         _1.boolean :force_errors
         _1.array :ignore_params, default: []
+        _1.on :key_transform, type: Proc
         _1.on :logger, type: [:boolean, Logger]
         _1.boolean :utf8
       end
@@ -23,7 +24,7 @@ module HTTPDisk
     end
 
     def call(env)
-      cache_key = CacheKey.new(env, ignore_params:)
+      cache_key = build_cache_key(env)
       logger&.info("#{env.method.upcase} #{env.url} (#{cache.status(cache_key)})")
       env[:httpdisk_diskpath] = cache.diskpath(cache_key)
 
@@ -42,7 +43,7 @@ module HTTPDisk
 
     # Returns cache status for this request
     def status(env)
-      cache_key = CacheKey.new(env)
+      cache_key = build_cache_key(env)
       {
         url: env.url.to_s,
         status: cache.status(cache_key).to_s,
@@ -160,6 +161,12 @@ module HTTPDisk
 
     def ignore_params
       @ignore_params ||= options[:ignore_params].map { CGI.escape(_1.to_s) }.to_set
+    end
+
+    def build_cache_key(env)
+      CacheKey.new(env, ignore_params:).tap do
+        options[:key_transform]&.call(_1)
+      end
     end
 
     def logger
