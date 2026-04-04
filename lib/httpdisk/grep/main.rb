@@ -14,13 +14,13 @@ module HTTPDisk
       def run
         paths.each do
           run_one(_1)
-      rescue => e
-        if ENV["HTTPDISK_DEBUG"]
-          $stderr.puts
-          warn e.class
-          warn e.backtrace.join("\n")
-        end
-        raise CliError, "#{e.message[0, 70]} (#{_1})"
+        rescue => e
+          if ENV["HTTPDISK_DEBUG"]
+            $stderr.puts
+            warn e.class
+            warn e.backtrace.join("\n")
+          end
+          raise CliError, "#{e.message[0, 70]} (#{_1})"
         end
         success
       end
