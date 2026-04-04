@@ -22,5 +22,6 @@ jobs:
         with:
           mise_toml: |
             [tools]
+            just = "latest"
             ruby = "${{ matrix.ruby-version }}"
       - run: just check
