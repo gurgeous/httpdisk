@@ -11,11 +11,11 @@ module HTTPDisk
       @options = options
     end
 
-    def compress = options[:compress]
-    def dir = options[:dir]
-    def expires = options[:expires]
-    def force = options[:force]
-    def force_errors = options[:force_errors]
+    %i[compress dir expires force force_errors].each do |method|
+      define_method(method) do
+        options[method]
+      end
+    end
     alias_method :compress?, :compress
     alias_method :force?, :force
     alias_method :force_errors?, :force_errors
@@ -94,11 +94,13 @@ module HTTPDisk
     end
 
     def write_payload(tmp, payload)
-      return payload.write(tmp) if !compress?
-
-      Zlib::GzipWriter.new(tmp).tap do |gzip|
-        payload.write(gzip)
-        gzip.close
+      if compress?
+        Zlib::GzipWriter.new(tmp).tap do |gzip|
+          payload.write(gzip)
+          gzip.close
+        end
+      else
+        payload.write(tmp)
       end
     end
 
