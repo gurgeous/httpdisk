@@ -187,8 +187,9 @@ An alternative is to use [ripgrep-all](https://github.com/phiresky/ripgrep-all) 
 
 ## Changelog
 
-#### 1.0.1 (unreleased)
+#### 1.0.1
 
+- added `compress: false` to disable compression (#9, thx `@aspiers`)
 - added key_transform for cache key customization
 - moved to Mise
 - deps
